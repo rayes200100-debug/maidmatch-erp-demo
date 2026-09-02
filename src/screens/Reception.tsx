@@ -89,10 +89,6 @@ export default function Reception({ state, dispatch }: ReceptionProps) {
 
   return (
     <div className="page-stack">
-      <style>{`
-        .reception-table .table-row { grid-template-columns: 1.5fr 1.15fr 1.15fr .8fr .7fr .45fr .9fr auto; }
-      `}</style>
-
       <header className="page-header">
         <div>
           <span className="eyebrow">Reception</span>

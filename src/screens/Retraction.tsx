@@ -117,10 +117,6 @@ export default function Retraction({ state, dispatch, route }: RetractionProps) 
 
     return (
       <div className="page-stack">
-        <style>{`
-          .retraction-archive-table .table-row { grid-template-columns: 1.5fr .8fr .9fr 1.4fr; }
-        `}</style>
-
         <header className="page-header">
           <div>
             <span className="eyebrow">Retraction</span>
@@ -221,14 +217,6 @@ export default function Retraction({ state, dispatch, route }: RetractionProps) 
 
   return (
     <div className="page-stack">
-      <style>{`
-        .retraction-queue-table .table-row { grid-template-columns: 1.6fr .8fr .7fr .7fr 140px; }
-        .retraction-queue-table .table-row.is-locked { background: var(--surface-soft); }
-        .retraction-queue-table .table-row.is-locked:hover { background: var(--surface-soft); }
-        .retraction-queue-table .locked-action { display: flex; align-items: center; gap: 6px; color: var(--muted); }
-        .retraction-queue-table .locked-action small { margin-top: 0; color: var(--muted); font-weight: 700; }
-      `}</style>
-
       <header className="page-header">
         <div>
           <span className="eyebrow">Retraction</span>

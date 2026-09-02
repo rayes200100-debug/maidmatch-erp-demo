@@ -161,6 +161,24 @@ button.table-row { cursor: pointer; }
 .table-head { min-height: 36px; color: var(--muted); background: #fffaf6; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .mobile-subline { display: none; }
 .directory-table .table-row { grid-template-columns: 1.7fr .8fr .6fr .4fr 1.4fr .5fr; }
+
+/* table column variants (per-screen grids) */
+.retraction-archive-table .table-row { grid-template-columns: 1.5fr .8fr .9fr 1.4fr; }
+.retraction-queue-table .table-row { grid-template-columns: 1.6fr .8fr .7fr .7fr 140px; }
+.retraction-queue-table .table-row.is-locked { background: var(--surface-soft); }
+.retraction-queue-table .table-row.is-locked:hover { background: var(--surface-soft); }
+.retraction-queue-table .locked-action { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.retraction-queue-table .locked-action small { margin-top: 0; color: var(--muted); font-weight: 700; }
+.media-archive-table .table-row { grid-template-columns: 1.5fr .9fr 1fr 1fr; }
+.media-queue-table .table-row { grid-template-columns: 1.6fr .8fr .6fr auto; }
+.publishing-archive-table.hired .table-row { grid-template-columns: 1.5fr .8fr 1.3fr .9fr; }
+.publishing-archive-table.cancelled .table-row { grid-template-columns: 1.4fr .8fr 1.1fr .9fr 1.7fr; }
+.publishing-table .table-row { grid-template-columns: 1.4fr .7fr .4fr .7fr .5fr .5fr .5fr; }
+.publishing-table .platform-cell { border: 0; background: transparent; cursor: pointer; padding: 4px 6px; border-radius: 8px; font-size: 12px; }
+.publishing-table .platform-cell:hover { background: #f6ece7; }
+.publishing-queue-table .table-row { grid-template-columns: 1.6fr .8fr .6fr auto; }
+.reception-table .table-row { grid-template-columns: 1.5fr 1.15fr 1.15fr .8fr .7fr .45fr .9fr auto; }
+.users-table .table-row { grid-template-columns: 1.3fr 1.7fr 1.4fr .5fr auto; }
 .person-cell { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .avatar { display: grid; place-items: center; flex: 0 0 auto; border-radius: 11px; color: #8c5044; background: linear-gradient(145deg, #fae6d4, #fbd9e8); font-weight: 800; }
 .avatar-sm { width: 30px; height: 30px; font-size: 12px; }

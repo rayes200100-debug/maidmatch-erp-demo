@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import type { AppState, Action } from "../store";
 import { makeSeedState } from "../store";
 import { HOUSEMAID_TYPE_OPTIONS, NATIONALITY_OPTIONS } from "../data";
@@ -6,7 +7,7 @@ import type { RoleId } from "../lib/roles";
 import { TASK_TYPE_LABEL } from "../lib/stages";
 import type { TaskType } from "../lib/stages";
 import type { PriorityAlgorithm } from "../lib/priority";
-import { Panel } from "../components/primitives";
+import { Panel, Toast } from "../components/primitives";
 
 interface SystemConfigProps {
   state: AppState;
@@ -45,6 +46,29 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
   const config = state.config;
   const gp = config.goldenProfile;
   const wh = config.workingHours;
+  const [toast, setToast] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const prevConfig = useRef(config);
+
+  useEffect(() => {
+    if (prevConfig.current !== config) {
+      prevConfig.current = config;
+      setToast("Changes saved");
+      window.setTimeout(() => setToast(null), 1800);
+    }
+  }, [config]);
+
+  const resetDemo = () => {
+    if (!confirmReset) {
+      setConfirmReset(true);
+      window.setTimeout(() => setConfirmReset(false), 3000);
+      return;
+    }
+    dispatch({ type: "RESET", state: makeSeedState() });
+    setConfirmReset(false);
+    setToast("Demo data reset");
+    window.setTimeout(() => setToast(null), 1800);
+  };
 
   return (
     <div className="page-stack">
@@ -57,10 +81,10 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
         <div className="page-actions">
           <button
             type="button"
-            className="secondary-button"
-            onClick={() => dispatch({ type: "RESET", state: makeSeedState() })}
+            className={confirmReset ? "danger-button solid" : "secondary-button"}
+            onClick={resetDemo}
           >
-            Reset demo data
+            {confirmReset ? "Click again to confirm" : "Reset demo data"}
           </button>
         </div>
       </header>
@@ -338,6 +362,8 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
             ))}
           </div>
       </Panel>
+
+      <Toast message={toast} tone="success" />
     </div>
   );
 }

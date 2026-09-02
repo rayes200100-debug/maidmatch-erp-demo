@@ -101,10 +101,6 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
 
     return (
       <div className="page-stack">
-        <style>{`
-          .media-archive-table .table-row { grid-template-columns: 1.5fr .9fr 1fr 1fr; }
-        `}</style>
-
         <header className="page-header">
           <div>
             <span className="eyebrow">Media &amp; Production</span>
@@ -193,10 +189,6 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
 
   return (
     <div className="page-stack">
-      <style>{`
-        .media-queue-table .table-row { grid-template-columns: 1.6fr .8fr .6fr auto; }
-      `}</style>
-
       <header className="page-header">
         <div>
           <span className="eyebrow">Media &amp; Production</span>

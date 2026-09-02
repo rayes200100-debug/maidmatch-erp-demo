@@ -23,6 +23,7 @@ const PUBLISHING_COLUMNS = [
   { key: "name", label: "Name" },
   { key: "nationality", label: "Nationality" },
   { key: "age", label: "Age" },
+  { key: "progress", label: "Progress" },
   { key: "maidmatch", label: "MaidMatch" },
   { key: "peekaboo", label: "Peekaboo" },
   { key: "yaya", label: "Yaya" },
@@ -132,10 +133,6 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
 
     return (
       <div className="page-stack">
-        <style>{`
-          .publishing-archive-table .table-row { grid-template-columns: ${isCancelled ? "1.4fr .8fr 1.1fr .9fr 1.7fr" : "1.5fr .8fr 1.3fr .9fr"}; }
-        `}</style>
-
         <header className="page-header">
           <div>
             <span className="eyebrow">Publishing</span>
@@ -149,7 +146,7 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
         </header>
 
         <Panel className="flush">
-          <div className="publishing-archive-table">
+          <div className={`publishing-archive-table ${isCancelled ? "cancelled" : "hired"}`}>
             {outcomes.length === 0 ? (
               <EmptyState title="No records" hint="Completed outcomes will appear here." />
             ) : (
@@ -166,6 +163,7 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
 
     const rows = tasks.map((task) => {
       const maid = maidById(state, task.housemaidId);
+      const progress = PLATFORMS.filter((p) => task.metadata?.publishState?.[p]).length;
       return (
         <div className="table-row" key={task.id}>
           <span className="person-cell">
@@ -180,19 +178,27 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
           <span>
             <strong>{maid ? `${maid.age}y` : "—"}</strong>
           </span>
+          <span>
+            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <strong style={{ fontSize: 12 }}>{progress}/3</strong>
+              <span style={{ height: 5, width: 36, borderRadius: 99, background: "var(--line)", overflow: "hidden" }}>
+                <i style={{ display: "block", height: "100%", width: `${(progress / 3) * 100}%`, background: "var(--success)", borderRadius: "inherit" }} />
+              </span>
+            </span>
+          </span>
           {PLATFORMS.map((platform) => {
             const green = task.metadata?.publishState?.[platform] ?? false;
             return (
-              <span key={platform}>
+              <span key={platform} style={{ display: "flex", justifyContent: "center" }}>
                 <button
                   type="button"
                   className="platform-cell"
                   onClick={() => togglePlatform(task.housemaidId, platform, green)}
                   aria-label={`${green ? "Unpublish from" : "Publish to"} ${PLATFORM_LABEL[platform]}`}
                   aria-pressed={green}
+                  title={`${PLATFORM_LABEL[platform]} — ${green ? "published" : "not published"}`}
                 >
                   <i className={green ? "green" : ""}>&#10003;</i>
-                  <span>{PLATFORM_LABEL[platform]}</span>
                 </button>
               </span>
             );
@@ -203,12 +209,6 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
 
     return (
       <div className="page-stack">
-        <style>{`
-          .publishing-table .table-row { grid-template-columns: 1.6fr .8fr .5fr .8fr .8fr .8fr; }
-          .publishing-table .platform-cell { border: 0; background: transparent; cursor: pointer; padding: 4px 6px; border-radius: 8px; font-size: 12px; }
-          .publishing-table .platform-cell:hover { background: #f6ece7; }
-        `}</style>
-
         <header className="page-header">
           <div>
             <span className="eyebrow">Publishing</span>
@@ -293,10 +293,6 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
 
   return (
     <div className="page-stack">
-      <style>{`
-        .publishing-queue-table .table-row { grid-template-columns: 1.6fr .8fr .6fr auto; }
-      `}</style>
-
       <header className="page-header">
         <div>
           <span className="eyebrow">Publishing</span>

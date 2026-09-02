@@ -234,10 +234,13 @@ export default function Retraction({ state, dispatch, route }: RetractionProps) 
           <span className="eyebrow">Retraction</span>
           <h1>Pending Retraction</h1>
           <p>Process one maid at a time — the queue is locked to the top-priority profile.</p>
+          <p style={{ fontSize: 12, marginTop: 8 }}>
+            <strong>MV</strong> MaidMatch &middot; <strong>CC</strong> from maids.cc &middot; <strong>CC to MV</strong> migrating from CC to MaidMatch
+          </p>
         </div>
         <div className="page-actions">
           <StatusPill tone="neutral">
-            {state.config.priorityAlgorithm}
+            Priority: {state.config.priorityAlgorithm}
           </StatusPill>
         </div>
       </header>

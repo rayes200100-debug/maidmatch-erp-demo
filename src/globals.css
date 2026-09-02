@@ -368,6 +368,8 @@ button.table-row { cursor: pointer; }
   .workspace-profile.mobile-hidden, .workspace-task.mobile-hidden { display: none; }
   .task-input-field input, .task-input-field select, .task-input-field textarea, .inline-search input { font-size: 16px; }
   .screen-access-grid { grid-template-columns: 1fr; }
+  .task-action-footer { gap: 10px; }
+  .task-action-footer .primary-button, .task-action-footer .danger-button, .task-action-footer .secondary-button { flex: 1; min-height: 52px; }
   .outcome-grid { grid-template-columns: 1fr; }
   .task-dynamic-fields { grid-template-columns: 1fr; }
   .modal-backdrop { align-items: end; padding: 0; }

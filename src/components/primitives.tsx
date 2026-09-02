@@ -1,5 +1,6 @@
 import { useEffect, useId } from "react";
 import type { ReactNode } from "react";
+import { Inbox } from "lucide-react";
 
 export function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <section className={`panel ${className}`.trim()}>{children}</section>;
@@ -41,6 +42,7 @@ export function MetricCard({
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
     <div className="empty-state">
+      <Inbox size={22} strokeWidth={1.5} aria-hidden />
       <strong>{title}</strong>
       {hint && <span>{hint}</span>}
     </div>

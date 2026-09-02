@@ -14,6 +14,8 @@ export interface AppState {
   onBreak: boolean;
   config: SystemConfig;
   now: number;
+  /** When the seed state was built. Tasks created at or before this are demo fixtures. */
+  seededAt: number;
 }
 
 export type Action =
@@ -236,6 +238,12 @@ export function avgTimeByStage(state: AppState): Partial<Record<Stage, number>> 
   return result;
 }
 
+/** Demo fixtures: Christine is 2-of-3 published, Deepa 1-of-3, so the queue shows partial progress. */
+const SEED_PUBLISH_STATE: Record<string, Record<Platform, boolean>> = {
+  h014: { maidmatch: true, peekaboo: true, yaya: false },
+  h015: { maidmatch: true, peekaboo: false, yaya: false },
+};
+
 export function makeSeedState(): AppState {
   const now = Date.now();
   const tasks: Task[] = [];
@@ -251,7 +259,10 @@ export function makeSeedState(): AppState {
         status: "open",
         assignedRole: defaultConfig.defaultRolePerTask[taskType],
         createdAt: now - i * 1000,
-        metadata: taskType === "publishing" ? { publishState: { maidmatch: false, peekaboo: false, yaya: false } } : undefined,
+        metadata:
+          taskType === "publishing"
+            ? { publishState: SEED_PUBLISH_STATE[h.id] ?? { maidmatch: false, peekaboo: false, yaya: false } }
+            : undefined,
       });
     } else if (isTerminal(h.currentStage)) {
       outcomes.push({
@@ -294,5 +305,6 @@ export function makeSeedState(): AppState {
     onBreak: false,
     config: defaultConfig,
     now,
+    seededAt: now,
   };
 }

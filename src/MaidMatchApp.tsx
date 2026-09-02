@@ -83,6 +83,8 @@ export default function MaidMatchApp() {
       const now = Date.now();
       for (const task of current.tasks) {
         if (task.type !== "publishing" || task.status !== "open") continue;
+        // Seeded tasks keep their fixture publish state so the queue is browsable.
+        if (task.createdAt <= current.seededAt) continue;
         const elapsed = now - task.createdAt;
         const publishState = task.metadata?.publishState;
         for (const { platform, delay } of PUBLISH_SCHEDULE) {

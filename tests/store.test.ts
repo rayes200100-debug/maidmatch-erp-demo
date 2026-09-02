@@ -14,7 +14,7 @@ function maid(stage: Housemaid["currentStage"] = "Reception"): Housemaid {
 }
 
 function base(h: Housemaid[]): AppState {
-  return { housemaids: h, tasks: [], outcomes: [], users: [], currentRole: "sysadmin", onBreak: false, config: defaultConfig, now: 0 };
+  return { housemaids: h, tasks: [], outcomes: [], users: [], currentRole: "sysadmin", onBreak: false, config: defaultConfig, now: 0, seededAt: 0 };
 }
 
 describe("reducer transitions", () => {
@@ -208,13 +208,23 @@ describe("makeSeedState consistency with seed housemaids", () => {
     expect(pubOutcomes.some((o) => o.type === "ProductionDone")).toBe(true);
   });
 
-  it("publishing tasks carry an all-false publishState", () => {
+  it("publishing tasks carry a publishState with at least one platform still pending", () => {
     const s = makeSeedState();
     const publishing = s.tasks.filter((t) => t.type === "publishing");
     expect(publishing.length).toBeGreaterThan(0);
     for (const t of publishing) {
-      expect(t.metadata?.publishState).toEqual({ maidmatch: false, peekaboo: false, yaya: false });
+      const state = t.metadata?.publishState;
+      expect(state).toBeDefined();
+      expect(Object.values(state!).every(Boolean)).toBe(false);
     }
+  });
+
+  it("seeds a maid with two of three platforms already published", () => {
+    const s = makeSeedState();
+    const partial = s.tasks.find(
+      (t) => t.type === "publishing" && Object.values(t.metadata?.publishState ?? {}).filter(Boolean).length === 2
+    );
+    expect(partial).toBeTruthy();
   });
 });
 

@@ -89,6 +89,33 @@ export const PREFERENCE_OPTIONS = [
   "She prefers to be a Live out maid",
 ];
 
+export type PreferenceGroup = "Household" | "Living arrangement" | "Schedule & location";
+
+export interface PreferenceDef {
+  value: string;
+  label: string;
+  group: PreferenceGroup;
+  exclusive?: "live";
+}
+
+export const PREFERENCE_DEFS: PreferenceDef[] = [
+  { value: "She doesn't prefer for the employer to have Babies < 2 yrs", label: "No babies under 2", group: "Household" },
+  { value: "She doesn't prefer for the employer to have More than 2 kids", label: "No more than 2 kids", group: "Household" },
+  { value: "She doesn't prefer for the employer to have a cat", label: "No cats", group: "Household" },
+  { value: "She doesn't prefer for the employer to have a dog", label: "No dogs", group: "Household" },
+  { value: "She prefers for the employer to have a private maids' room for her", label: "Private room", group: "Living arrangement" },
+  { value: "She prefers to be a Live in maid", label: "Live in", group: "Living arrangement", exclusive: "live" },
+  { value: "She prefers to be a Live out maid", label: "Live out", group: "Living arrangement", exclusive: "live" },
+  { value: "She prefers for the employer to give her a Day-off on Sunday", label: "Sunday off", group: "Schedule & location" },
+  { value: "She doesn't prefer for the employer to have a Home in Abu Dhabi", label: "No Abu Dhabi home", group: "Schedule & location" },
+];
+
+export const PREFERENCE_GROUPS: PreferenceGroup[] = ["Household", "Living arrangement", "Schedule & location"];
+
+export function preferenceLabel(value: string): string {
+  return PREFERENCE_DEFS.find((d) => d.value === value)?.label ?? value;
+}
+
 export const HOUSEMAID_TYPE_OPTIONS: HousemaidType[] = ["MV", "CC", "CC to MV"];
 
 export const NATIONALITY_OPTIONS = ["Filipino", "Ethiopian", "Kenyan", "Sri Lankan", "Indian", "Nepali"];

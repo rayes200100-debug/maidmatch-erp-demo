@@ -51,21 +51,21 @@ test("retraction to hired happy path", async ({ page }) => {
 
   await firstRow.getByRole("button", { name: "Open Task" }).click();
   await page.locator(".workspace-task").getByRole("button", { name: "Retract to MaidMatch" }).click();
-  await page.locator(".check-row").first().click();
-  await page.locator(".modal-card").getByRole("button", { name: "Confirm" }).click();
+  await page.locator(".workspace-task").locator(".check-row").first().click();
+  await page.locator(".workspace-task").getByRole("button", { name: "Confirm · Retract to MaidMatch" }).click();
 
   // Shooting
   await openNav(page, "Media & Production", "Pending Shooting");
   await rowByName(page, maidName).getByRole("button", { name: "Open Task" }).click();
   await page.locator(".workspace-task").getByRole("button", { name: "Done shooting" }).click();
-  await page.locator(".workspace-task").getByRole("button", { name: "Confirm" }).click();
+  await page.locator(".workspace-task").getByRole("button", { name: "Confirm · Done shooting" }).click();
 
   // Editing
   await openNav(page, "Media & Production", "Pending Editing");
   await rowByName(page, maidName).getByRole("button", { name: "Open Task" }).click();
   await page.locator(".workspace-task").getByRole("button", { name: "Editing done" }).click();
-  await page.getByLabel(/final photo/i).fill("https://example.com/final.jpg");
-  await page.locator(".workspace-task").getByRole("button", { name: "Confirm" }).click();
+  await page.locator(".workspace-task").getByLabel(/final photo/i).fill("https://example.com/final.jpg");
+  await page.locator(".workspace-task").getByRole("button", { name: "Confirm · Editing done" }).click();
 
   // Publishing: staggered auto-publish moves her to Available & Published.
   await openNav(page, "Publishing", "Available & Published");
@@ -75,13 +75,13 @@ test("retraction to hired happy path", async ({ page }) => {
   // Under trial
   await rowByName(page, maidName).getByRole("button", { name: "Open Task" }).click();
   await page.locator(".workspace-task").getByRole("button", { name: "Under trial" }).click();
-  await page.locator(".workspace-task").getByRole("button", { name: "Confirm" }).click();
+  await page.locator(".workspace-task").getByRole("button", { name: "Confirm · Under trial" }).click();
 
   // Trial -> Hired
   await openNav(page, "Publishing", "Under Trial");
   await rowByName(page, maidName).getByRole("button", { name: "Open Task" }).click();
   await page.locator(".workspace-task").getByRole("button", { name: "Hired" }).click();
-  await page.locator(".workspace-task").getByRole("button", { name: "Confirm" }).click();
+  await page.locator(".workspace-task").getByRole("button", { name: "Confirm · Hired" }).click();
 
   // Hired archive
   await openNav(page, "Publishing", "Hired");

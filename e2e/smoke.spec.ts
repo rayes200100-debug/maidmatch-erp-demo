@@ -32,11 +32,20 @@ test("retraction to hired happy path", async ({ page }) => {
   // Reception: dispatch a seed maid into the retraction queue.
   await page.locator(SIDEBAR).getByRole("button", { name: "Reception" }).click();
   await page.getByLabel("Search reception maids").fill("Maria");
+  const dispatchedName = (
+    await rowByName(page, "Maria").locator(".person-cell strong").innerText()
+  ).trim();
   await page.getByRole("button", { name: "Send to Retraction Team" }).click();
 
-  // Retraction: the queue is locked to its top row, so capture that maid's
-  // name and carry it through every downstream stage.
+  // Retraction: verify the reception→retraction handoff actually landed the
+  // dispatched maid in the queue. Under FIFO she is the locked bottom row, but
+  // she must be present.
   await openNav(page, "Retraction", "Pending Retraction");
+  const retractionQueue = page.locator(".retraction-queue-table");
+  await expect(retractionQueue.getByText(dispatchedName, { exact: true })).toBeVisible();
+
+  // The queue is locked to its top row, so capture that maid's name and carry
+  // it through every downstream stage.
   const firstRow = page.locator(".retraction-queue-table .table-row").nth(1);
   const maidName = (await firstRow.locator(".person-cell strong").innerText()).trim();
 

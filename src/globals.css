@@ -204,6 +204,7 @@ button.table-row { cursor: pointer; }
 .check-row input { opacity: 0; width: 0; height: 0; }
 .check-row > span { width: 23px; height: 23px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-strong); border-radius: 7px; color: transparent; background: #fff; }
 .check-row input:checked + span { border-color: var(--brand-dark); color: #fff; background: var(--brand-dark); }
+.check-row input:focus-visible + span { outline: 3px solid rgba(212, 136, 120, 0.35); outline-offset: 2px; }
 .task-action-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 18px; border-top: 1px solid var(--line); }
 .validation-summary { display: flex; gap: 10px; margin-top: 14px; padding: 12px; border: 1px solid #efc6c2; border-radius: 11px; color: var(--danger); background: var(--danger-soft); font-size: 12px; }
 .validation-summary > div { display: grid; gap: 4px; }
@@ -341,6 +342,8 @@ button.table-row { cursor: pointer; }
   .app-main { margin-left: 0; }
   .topbar { padding: 0 18px; }
   .content { padding: 25px 18px 50px; }
+  .role-preview { display: none; }
+  .roles-layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
   .workspace-split { display: block; min-height: 0; }
@@ -363,6 +366,8 @@ button.table-row { cursor: pointer; }
   .mobile-workspace-tabs button { min-height: 44px; border: 0; border-radius: 8px; color: var(--muted); background: transparent; font-size: 12px; font-weight: 800; }
   .mobile-workspace-tabs button.active { color: var(--ink); background: #fff; }
   .workspace-profile.mobile-hidden, .workspace-task.mobile-hidden { display: none; }
+  .task-input-field input, .task-input-field select, .task-input-field textarea, .inline-search input { font-size: 16px; }
+  .screen-access-grid { grid-template-columns: 1fr; }
   .outcome-grid { grid-template-columns: 1fr; }
   .task-dynamic-fields { grid-template-columns: 1fr; }
   .modal-backdrop { align-items: end; padding: 0; }

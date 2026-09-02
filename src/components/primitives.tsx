@@ -1,3 +1,4 @@
+import { useEffect, useId } from "react";
 import type { ReactNode } from "react";
 
 export function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
@@ -61,14 +62,25 @@ export function Modal({
   children: ReactNode;
   actions?: ReactNode;
 }) {
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
   if (!open) return null;
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(e) => e.stopPropagation()}>
         <button type="button" className="modal-close icon-button" onClick={onClose} aria-label="Close">
           &times;
         </button>
-        <h2>{title}</h2>
+        <h2 id={titleId}>{title}</h2>
         {subtitle && <p>{subtitle}</p>}
         {children}
         {actions && <div className="modal-actions">{actions}</div>}
@@ -85,7 +97,11 @@ export function Toast({
   tone?: "success" | "danger";
 }) {
   if (!message) return null;
-  return <div className={`toast ${tone ?? ""}`.trim()}>{message}</div>;
+  return (
+    <div className={`toast ${tone ?? ""}`.trim()} role="status" aria-live="polite">
+      {message}
+    </div>
+  );
 }
 
 export function DataTable({
@@ -96,10 +112,12 @@ export function DataTable({
   rows: ReactNode[];
 }) {
   return (
-    <div className="data-table">
-      <div className="table-row table-head">
+    <div className="data-table" role="table">
+      <div className="table-row table-head" role="row">
         {columns.map((c) => (
-          <span key={c.key}>{c.label}</span>
+          <span key={c.key} role="columnheader">
+            {c.label}
+          </span>
         ))}
       </div>
       {rows}

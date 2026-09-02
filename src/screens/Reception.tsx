@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Search, X } from "lucide-react";
 import type { AppState, Action } from "../store";
 import { DataTable, EmptyState, Panel, Toast } from "../components/primitives";
 
@@ -100,24 +101,22 @@ export default function Reception({ state, dispatch }: ReceptionProps) {
         </div>
       </header>
 
-      <Panel>
+      <Panel className="flush">
         <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--line)" }}>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, mobile, whatsapp, or maids.cc ID..."
-            aria-label="Search reception maids"
-            style={{
-              width: "100%",
-              minHeight: 43,
-              padding: "0 12px",
-              border: "1px solid var(--line-strong)",
-              borderRadius: 10,
-              color: "var(--ink)",
-              background: "#fff",
-              fontSize: 12,
-            }}
-          />
+          <div className="inline-search">
+            <Search size={16} />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, mobile, whatsapp, or maids.cc ID..."
+              aria-label="Search reception maids"
+            />
+            {search && (
+              <button type="button" className="text-button" onClick={() => setSearch("")} aria-label="Clear search">
+                <X size={14} />
+              </button>
+            )}
+          </div>
         </div>
         <div className="reception-table">
           {receptionMaids.length === 0 ? (

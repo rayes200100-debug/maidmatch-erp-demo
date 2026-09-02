@@ -113,7 +113,7 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
           </div>
         </header>
 
-        <Panel>
+        <Panel className="flush">
           <div className="media-archive-table">
             {outcomes.length === 0 ? (
               <EmptyState title="No completed productions" hint="Finished shoots and edits will appear here." />
@@ -209,7 +209,7 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
         </div>
       </header>
 
-      <Panel>
+      <Panel className="flush">
         <div className="media-queue-table">
           {tasks.length === 0 ? (
             <EmptyState

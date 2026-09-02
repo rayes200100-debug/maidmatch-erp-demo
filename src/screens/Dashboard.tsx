@@ -58,7 +58,6 @@ export default function Dashboard({ state }: DashboardProps) {
       </div>
 
       <Panel>
-        <div style={{ padding: "20px 22px" }}>
           <div className="panel-header">
             <div>
               <h2>Time in step</h2>
@@ -97,11 +96,9 @@ export default function Dashboard({ state }: DashboardProps) {
               ))
             )}
           </div>
-        </div>
       </Panel>
 
       <Panel>
-        <div style={{ padding: "20px 22px" }}>
           <div className="panel-header">
             <div>
               <h2>Hiring funnel</h2>
@@ -120,11 +117,9 @@ export default function Dashboard({ state }: DashboardProps) {
               </strong>
             </div>
           </div>
-        </div>
       </Panel>
 
       <Panel>
-        <div style={{ padding: "20px 22px" }}>
           <div className="panel-header">
             <div>
               <h2>Pipeline</h2>
@@ -150,7 +145,6 @@ export default function Dashboard({ state }: DashboardProps) {
               </div>
             ))}
           </div>
-        </div>
       </Panel>
     </div>
   );

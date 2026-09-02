@@ -162,7 +162,7 @@ export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
           />
         </Panel>
       ) : (
-        <Panel>
+        <Panel className="flush">
           <DataTable columns={columns} rows={rows} />
         </Panel>
       )}

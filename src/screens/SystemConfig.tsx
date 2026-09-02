@@ -66,7 +66,6 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
       </header>
 
       <Panel>
-        <div style={{ padding: "20px 22px" }}>
           <div className="panel-header">
             <div>
               <h2>Breaks</h2>
@@ -95,11 +94,9 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
               />
             </label>
           </div>
-        </div>
       </Panel>
 
       <Panel>
-        <div style={{ padding: "20px 22px" }}>
           <div className="panel-header">
             <div>
               <h2>Retraction Profile Priority Algorithm</h2>
@@ -121,11 +118,9 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
               ))}
             </select>
           </label>
-        </div>
       </Panel>
 
       <Panel>
-        <div style={{ padding: "20px 22px" }}>
           <div className="panel-header">
             <div>
               <h2>Golden Profile Definition</h2>
@@ -225,11 +220,9 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
               ))}
             </div>
           </div>
-        </div>
       </Panel>
 
       <Panel>
-        <div style={{ padding: "20px 22px" }}>
           <div className="panel-header">
             <div>
               <h2>Working hours</h2>
@@ -294,11 +287,9 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
               ))}
             </div>
           </div>
-        </div>
       </Panel>
 
       <Panel>
-        <div style={{ padding: "20px 22px" }}>
           <div className="panel-header">
             <div>
               <h2>Default Assigned Role per Task</h2>
@@ -346,7 +337,6 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
               </div>
             ))}
           </div>
-        </div>
       </Panel>
     </div>
   );

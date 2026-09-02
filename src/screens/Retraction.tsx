@@ -129,7 +129,7 @@ export default function Retraction({ state, dispatch, route }: RetractionProps) 
           </div>
         </header>
 
-        <Panel>
+        <Panel className="flush">
           <div className="retraction-archive-table">
             {outcomes.length === 0 ? (
               <EmptyState title="No records" hint="Completed outcomes will appear here." />
@@ -242,7 +242,7 @@ export default function Retraction({ state, dispatch, route }: RetractionProps) 
         </div>
       </header>
 
-      <Panel>
+      <Panel className="flush">
         <div className="retraction-queue-table">
           {sorted.length === 0 ? (
             <EmptyState title="No pending retractions" hint="Maids sent from Reception will appear here." />

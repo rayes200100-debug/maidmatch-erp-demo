@@ -148,7 +148,7 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
           </div>
         </header>
 
-        <Panel>
+        <Panel className="flush">
           <div className="publishing-archive-table">
             {outcomes.length === 0 ? (
               <EmptyState title="No records" hint="Completed outcomes will appear here." />
@@ -220,7 +220,7 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
           </div>
         </header>
 
-        <Panel>
+        <Panel className="flush">
           <div className="publishing-table">
             {tasks.length === 0 ? (
               <EmptyState
@@ -309,7 +309,7 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
         </div>
       </header>
 
-      <Panel>
+      <Panel className="flush">
         <div className="publishing-queue-table">
           {tasks.length === 0 ? (
             <EmptyState

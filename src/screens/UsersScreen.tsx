@@ -94,7 +94,7 @@ export default function UsersScreen({ state, dispatch }: UsersProps) {
         </div>
       </header>
 
-      <Panel>
+      <Panel className="flush">
         <div className="users-table">
           <DataTable columns={columns} rows={rows} />
         </div>

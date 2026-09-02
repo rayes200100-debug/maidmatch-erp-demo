@@ -278,6 +278,26 @@ button.table-row { cursor: pointer; }
 .member-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px 4px 4px; border: 1px solid var(--line); border-radius: 99px; font-size: 12px; color: var(--ink-soft); background: #fff; }
 .member-chip .avatar-sm { width: 22px; height: 22px; font-size: 10px; border-radius: 8px; }
 
+/* dashboard: metric icons, attention strip, pipeline bars */
+.metric-card { position: relative; }
+.metric-icon { width: 34px; height: 34px; display: grid; place-items: center; position: absolute; top: 16px; right: 16px; border-radius: 10px; }
+.metric-icon.brand { color: var(--brand-dark); background: var(--brand); }
+.metric-icon.info { color: var(--info); background: var(--info-soft); }
+.metric-icon.amber { color: var(--warning); background: var(--warning-soft); }
+.metric-icon.rose { color: var(--danger); background: var(--danger-soft); }
+.metric-icon.gold { color: var(--gold); background: var(--gold-soft); }
+.attention-strip { min-height: 64px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 13px; padding: 10px 16px; border: 1px solid #ead7ae; border-radius: 13px; background: linear-gradient(90deg, #fff8e9, #fffdf8); }
+.attention-strip .pulse-dot { width: 9px; height: 9px; border-radius: 50%; background: #d39232; box-shadow: 0 0 0 5px rgba(211,146,50,.12); }
+.attention-strip strong { font-size: 13px; }
+.attention-strip p { margin: 3px 0 0; color: #8b7755; font-size: 12px; }
+.attention-strip .text-button { color: #87611f; }
+.pipeline-bars { display: grid; gap: 10px; margin-top: 16px; }
+.pipeline-row { display: grid; grid-template-columns: 110px 1fr 30px; align-items: center; gap: 10px; }
+.pipeline-row > span { color: var(--ink-soft); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pipeline-row > div { height: 8px; overflow: hidden; border-radius: 99px; background: var(--line); }
+.pipeline-row i { display: block; height: 100%; border-radius: inherit; background: var(--brand-dark); }
+.pipeline-row strong { font-size: 12px; text-align: right; }
+
 /* journey stepper (profile pane) */
 .journey-mini { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(56px, 1fr); gap: 3px; overflow-x: auto; padding: 2px 0 6px; }
 .journey-mini > div { position: relative; display: grid; justify-items: center; gap: 6px; text-align: center; }

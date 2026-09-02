@@ -19,14 +19,17 @@ export function MetricCard({
   value,
   sub,
   tone,
+  icon,
 }: {
   label: string;
   value: ReactNode;
   sub?: string;
   tone?: string;
+  icon?: ReactNode;
 }) {
   return (
     <div className={`metric-card ${tone ?? ""}`.trim()}>
+      {icon && <span className={`metric-icon ${tone ?? "brand"}`.trim()}>{icon}</span>}
       <span>{label}</span>
       <strong>{value}</strong>
       {sub && <small>{sub}</small>}

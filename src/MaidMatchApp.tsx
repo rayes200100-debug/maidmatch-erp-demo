@@ -36,7 +36,7 @@ const PUBLISH_SCHEDULE: { platform: Platform; delay: number }[] = [
   { platform: "yaya", delay: 9000 },
 ];
 
-function renderScreen(route: string, state: AppState, dispatch: (a: Action) => void) {
+function renderScreen(route: string, state: AppState, dispatch: (a: Action) => void, onNavigate: (key: string) => void) {
   switch (route) {
     case "teamwork":
       return <TeamWork state={state} dispatch={dispatch} route={route} />;
@@ -63,7 +63,7 @@ function renderScreen(route: string, state: AppState, dispatch: (a: Action) => v
       return <SystemConfig state={state} dispatch={dispatch} route={route} />;
     case "dashboard":
     default:
-      return <Dashboard state={state} dispatch={dispatch} route={route} />;
+      return <Dashboard state={state} dispatch={dispatch} route={route} onNavigate={onNavigate} />;
   }
 }
 
@@ -100,7 +100,7 @@ export default function MaidMatchApp() {
   return (
     <Shell state={state} route={route} onNavigate={setRoute} onDispatch={dispatch}>
       {allowed ? (
-        renderScreen(route, state, dispatch)
+        renderScreen(route, state, dispatch, setRoute)
       ) : (
         <EmptyState title="You don't have access" hint="Your current role cannot view this screen." />
       )}

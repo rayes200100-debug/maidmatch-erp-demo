@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Node >= 22; package manager npm. `"type": "module"`.
-- React `19.x`, TypeScript `5.x`, Vite `6.x`, Tailwind CSS `4.x`, Vitest `2.x`, `@tailwindcss/vite` `4.x`, `@vitejs/plugin-react` `6.x`, Playwright `^1.62`.
+- React `19.x`, TypeScript `5.x`, Vite `6.x`, Tailwind CSS `4.x`, Vitest `2.x`, `@tailwindcss/vite` `4.x`, `@vitejs/plugin-react` `5.x` (5.2.0 — plugin-react 6.x requires Vite 8, which conflicts with the Vite 6 pin), Playwright `^1.62`.
 - Copy/labels: roles are **System Admin, Super Admin, Retractor, Media Team, Sales** (exact casing).
 - Brand tokens (verbatim from spec §9.1): `--brand #fbd9e8`, `--brand-medium #fae6d4`, `--brand-light #fff5ee`, `--brand-dark #8c5044`, `--accent-terracotta #d48878`, `--accent-terracotta-dark #8c5044`, `--accent-terracotta-light #f4b8cc`, `--paper #fff6f0`, `--radius 0.625rem`, font `"Plus Jakarta Sans", -apple-system, system-ui, sans-serif`.
 - Working hours: 8 AM – 8 PM. Days off configurable (multi-select). AVG time-in-step counts active working hours only.

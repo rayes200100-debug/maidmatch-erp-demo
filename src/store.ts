@@ -33,6 +33,7 @@ export type Action =
   | { type: "SET_ROLE"; role: RoleId }
   | { type: "TOGGLE_BREAK" }
   | { type: "SET_CONFIG"; patch: Partial<SystemConfig> }
+  | { type: "ADD_USER"; user: { name: string; email: string; roles: RoleId[] } }
   | { type: "RESET"; state: AppState };
 
 let seq = 0;
@@ -197,6 +198,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case "SET_ROLE": return { ...state, currentRole: action.role };
     case "TOGGLE_BREAK": return { ...state, onBreak: !state.onBreak };
     case "SET_CONFIG": return { ...state, config: { ...state.config, ...action.patch } };
+    case "ADD_USER": return { ...state, users: [...state.users, { id: nextId("user"), ...action.user }] };
     case "RESET": return action.state;
     default: return state;
   }

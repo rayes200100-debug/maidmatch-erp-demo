@@ -57,6 +57,18 @@ describe("reducer transitions", () => {
   });
 });
 
+describe("ADD_USER", () => {
+  it("appends a user with the given name, email, and roles", () => {
+    const s = reducer(base([maid("Reception")]), {
+      type: "ADD_USER",
+      user: { name: "Test User", email: "test@maidmatch.ae", roles: ["sales", "media"] },
+    });
+    expect(s.users).toHaveLength(1);
+    expect(s.users[0]).toMatchObject({ name: "Test User", email: "test@maidmatch.ae", roles: ["sales", "media"] });
+    expect(s.users[0].id).toBeTruthy();
+  });
+});
+
 describe("FLAG_PLATFORM auto-advance", () => {
   it("advances to AvailablePublished only when all three platforms are green", () => {
     let s: AppState = {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { canAccess, visibleNav, type NavKey } from "../src/lib/roles";
 
-const ALL: NavKey[] = ["dashboard", "teamwork", "reception", "retraction", "media", "publishing", "users", "roles", "config"];
+const ALL: NavKey[] = ["dashboard", "teamwork", "reception", "retraction", "media", "publishing", "users", "config"];
 
 describe("role visibility", () => {
   it("admins see everything", () => {

@@ -37,6 +37,7 @@ export type Action =
   | { type: "TOGGLE_BREAK" }
   | { type: "SET_CONFIG"; patch: Partial<SystemConfig> }
   | { type: "ADD_USER"; user: { name: string; email: string; roles: RoleId[] } }
+  | { type: "DEACTIVATE_USER"; userId: string }
   | { type: "RESET"; state: AppState };
 
 let seq = 0;
@@ -208,6 +209,14 @@ export function reducer(state: AppState, action: Action): AppState {
     case "TOGGLE_BREAK": return { ...state, onBreak: !state.onBreak };
     case "SET_CONFIG": return { ...state, config: { ...state.config, ...action.patch } };
     case "ADD_USER": return { ...state, users: [...state.users, { id: nextId("user"), ...action.user }] };
+    case "DEACTIVATE_USER": {
+      const user = state.users.find((u) => u.id === action.userId);
+      if (!user) return state;
+      const isAdmin = user.roles.includes("sysadmin") || user.roles.includes("superadmin");
+      const adminCount = state.users.filter((u) => u.roles.includes("sysadmin") || u.roles.includes("superadmin")).length;
+      if (isAdmin && adminCount <= 1) return state;
+      return { ...state, users: state.users.filter((u) => u.id !== action.userId) };
+    }
     case "RESET": return action.state;
     default: return state;
   }

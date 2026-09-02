@@ -13,7 +13,6 @@ import Retraction from "./screens/Retraction";
 import MediaProduction from "./screens/MediaProduction";
 import Publishing from "./screens/Publishing";
 import UsersScreen from "./screens/UsersScreen";
-import RolesScreen from "./screens/RolesScreen";
 import SystemConfig from "./screens/SystemConfig";
 
 const STAGE_ROUTE_GATE: Record<string, NavKey> = {
@@ -60,8 +59,6 @@ function renderScreen(route: string, state: AppState, dispatch: (a: Action) => v
       return <Publishing state={state} dispatch={dispatch} route={route} />;
     case "users":
       return <UsersScreen state={state} dispatch={dispatch} route={route} />;
-    case "roles":
-      return <RolesScreen state={state} dispatch={dispatch} route={route} />;
     case "config":
       return <SystemConfig state={state} dispatch={dispatch} route={route} />;
     case "dashboard":

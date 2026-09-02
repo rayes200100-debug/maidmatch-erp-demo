@@ -76,7 +76,6 @@ export const NAV_TREE: NavNode[] = [
     { key: "Hired", label: "Hired", kind: "archive" },
     { key: "Cancelled", label: "Cancelled", kind: "archive" },
   ]},
-  { key: "users", label: "Users", kind: "link" },
-  { key: "roles", label: "Roles", kind: "link" },
+  { key: "users", label: "Users & permissions", kind: "link" },
   { key: "config", label: "System Configuration", kind: "link" },
 ];

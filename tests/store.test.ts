@@ -96,6 +96,31 @@ describe("FLAG_PLATFORM auto-advance", () => {
   });
 });
 
+describe("user management", () => {
+  function withUsers(users: AppState["users"]): AppState {
+    return { ...base([maid("Reception")]), users };
+  }
+
+  it("DEACTIVATE_USER removes a non-admin user", () => {
+    const s = reducer(
+      withUsers([
+        { id: "u1", name: "Admin", email: "a@x.com", roles: ["sysadmin"] },
+        { id: "u2", name: "User", email: "b@x.com", roles: ["retractor"] },
+      ]),
+      { type: "DEACTIVATE_USER", userId: "u2" }
+    );
+    expect(s.users.map((u) => u.id)).toEqual(["u1"]);
+  });
+
+  it("DEACTIVATE_USER refuses to remove the last admin", () => {
+    const s = reducer(
+      withUsers([{ id: "u1", name: "Admin", email: "a@x.com", roles: ["sysadmin"] }]),
+      { type: "DEACTIVATE_USER", userId: "u1" }
+    );
+    expect(s.users).toHaveLength(1);
+  });
+});
+
 describe("selectors", () => {
   it("openTasks filters by type", () => {
     const s: AppState = {

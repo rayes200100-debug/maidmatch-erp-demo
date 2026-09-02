@@ -112,6 +112,8 @@ button:active:not(:disabled) { transform: scale(.98); }
 .secondary-button:hover { background: var(--surface-soft); }
 .danger-button { border: 1px solid #e6b9b5; color: var(--danger); background: #fffafa; }
 .danger-button.solid { border-color: var(--danger); color: #fff; background: var(--danger); }
+.danger-text-button { min-height: 34px; display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--danger); background: #fff; cursor: pointer; font-size: 12px; font-weight: 700; }
+.danger-text-button:hover { background: var(--danger-soft); }
 .text-button { display: inline-flex; align-items: center; gap: 6px; border: 0; color: var(--brand-dark); background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; }
 
 /* panels / cards */
@@ -248,6 +250,33 @@ button.table-row { cursor: pointer; }
 .live-toggle { display: flex; gap: 8px; }
 .live-toggle button { min-height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9px; background: #fff; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--ink-soft); }
 .live-toggle button.active { border-color: var(--brand-dark); color: var(--brand-dark); background: #fdf0f4; }
+
+/* tabs + roles master-detail */
+.tabs-row { display: flex; align-items: center; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-soft); width: max-content; max-width: 100%; }
+.tabs-row button { min-height: 32px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border: 0; border-radius: 8px; color: var(--muted); background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.tabs-row button.active { color: var(--ink); background: #fff; box-shadow: 0 2px 8px rgba(60,42,38,.07); }
+.tabs-row button b { min-width: 20px; height: 20px; display: grid; place-items: center; padding: 0 5px; border-radius: 6px; color: var(--muted); background: var(--surface-soft); font-size: 11px; }
+.tabs-row button.active b { color: var(--brand-dark); background: var(--brand); }
+.roles-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 16px; align-items: start; }
+.roles-rail { display: grid; gap: 4px; }
+.roles-rail button { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px solid transparent; border-radius: 10px; background: transparent; cursor: pointer; text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-soft); }
+.roles-rail button:hover { background: var(--surface-soft); }
+.roles-rail button.active { border-color: var(--line); background: #fff; box-shadow: 0 2px 8px rgba(60,42,38,.05); }
+.roles-rail button small { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; font-weight: 600; }
+.roles-rail button b { min-width: 22px; height: 22px; display: grid; place-items: center; border-radius: 6px; color: var(--brand-dark); background: var(--brand); font-size: 11px; }
+.roles-detail { display: grid; gap: 16px; }
+.role-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.role-detail-head h2 { margin: 0; font-size: 18px; letter-spacing: -.02em; }
+.role-detail-head p { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.screen-access-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.access-card { padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.access-card strong { display: block; font-size: 12px; }
+.access-card small { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.task-owner-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 12px; }
+.task-owner-row span { color: var(--ink-soft); }
+.member-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.member-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px 4px 4px; border: 1px solid var(--line); border-radius: 99px; font-size: 12px; color: var(--ink-soft); background: #fff; }
+.member-chip .avatar-sm { width: 22px; height: 22px; font-size: 10px; border-radius: 8px; }
 
 /* journey stepper (profile pane) */
 .journey-mini { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(56px, 1fr); gap: 3px; overflow-x: auto; padding: 2px 0 6px; }

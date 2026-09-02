@@ -11,11 +11,11 @@ export const ROLES: { id: RoleId; label: string }[] = [
 export type NavKey =
   | "dashboard" | "teamwork" | "reception"
   | "retraction" | "media" | "publishing"
-  | "users" | "roles" | "config";
+  | "users" | "config";
 
 export const ROLE_ACCESS: Record<RoleId, NavKey[]> = {
-  sysadmin: ["dashboard","teamwork","reception","retraction","media","publishing","users","roles","config"],
-  superadmin: ["dashboard","teamwork","reception","retraction","media","publishing","users","roles","config"],
+  sysadmin: ["dashboard","teamwork","reception","retraction","media","publishing","users","config"],
+  superadmin: ["dashboard","teamwork","reception","retraction","media","publishing","users","config"],
   retractor: ["dashboard","teamwork","reception","retraction","publishing"],
   media: ["dashboard","teamwork","media"],
   sales: ["dashboard","teamwork","publishing"],

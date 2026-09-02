@@ -9,6 +9,7 @@ import { EmptyState } from "./components/primitives";
 import Dashboard from "./screens/Dashboard";
 import TeamWork from "./screens/TeamWork";
 import Reception from "./screens/Reception";
+import Directory from "./screens/Directory";
 import Retraction from "./screens/Retraction";
 import MediaProduction from "./screens/MediaProduction";
 import Publishing from "./screens/Publishing";
@@ -42,6 +43,8 @@ function renderScreen(route: string, state: AppState, dispatch: (a: Action) => v
       return <TeamWork state={state} dispatch={dispatch} route={route} />;
     case "reception":
       return <Reception state={state} dispatch={dispatch} route={route} />;
+    case "directory":
+      return <Directory state={state} dispatch={dispatch} route={route} />;
     case "PendingRetraction":
     case "MovedToOffboard":
     case "RetractedToCC":

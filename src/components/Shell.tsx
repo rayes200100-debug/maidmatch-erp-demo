@@ -1,12 +1,13 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import type { AppState, Action } from "../store";
 import { openTasks, archiveForOutcome } from "../store";
 import type { RoleId, NavKey } from "../lib/roles";
 import { ROLES, visibleNav } from "../lib/roles";
 import type { NavNode, Stage, OutcomeType, TaskType } from "../lib/stages";
 import { NAV_TREE, queueTaskType, TASK_TYPE_LABEL } from "../lib/stages";
+import { StatusPill } from "./primitives";
 
 interface ShellProps {
   state: AppState;
@@ -52,13 +53,16 @@ function sidebarUser(state: AppState): { name: string; roleLabel: string; initia
   const roleLabel = ROLES.find((r) => r.id === role)?.label ?? role;
   const user = state.users.find((u) => u.roles.includes(role));
   const name = user?.name ?? roleLabel;
-  const initials = name
+  return { name, roleLabel, initials: initials(name) };
+}
+
+function initials(name: string): string {
+  return name
     .split(" ")
     .map((p) => p[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  return { name, roleLabel, initials };
 }
 
 const TASK_TYPE_ROUTE: Record<TaskType, string> = {
@@ -70,9 +74,30 @@ const TASK_TYPE_ROUTE: Record<TaskType, string> = {
   trial: "UnderTrial",
 };
 
+const STAGE_LABELS: Record<Stage, string> = {
+  Reception: "Reception",
+  PendingRetraction: "Pending Retraction",
+  PendingShooting: "Pending Shooting",
+  PendingEditing: "Pending Editing",
+  AvailablePendingPublishing: "Available Pending Publishing",
+  AvailablePublished: "Available & Published",
+  UnderTrial: "Under Trial",
+  RetractedToCC: "Retracted to CC",
+  MovedToOffboard: "Moved to Offboard",
+  Hired: "Hired",
+  Cancelled: "Cancelled",
+};
+
+function stageRoute(stage: Stage): string {
+  return stage === "Reception" ? "reception" : stage;
+}
+
 export function Shell({ state, route, onNavigate, onDispatch, children }: ShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     for (const node of NAV_TREE) {
@@ -89,6 +114,31 @@ export function Shell({ state, route, onNavigate, onDispatch, children }: ShellP
     .map((tt) => ({ type: tt, count: openTasks(state, tt).length }))
     .filter((x) => x.count > 0);
   const totalOpen = openByType.reduce((acc, x) => acc + x.count, 0);
+
+  const q = query.trim().toLowerCase();
+  const searchMatches = q
+    ? state.housemaids
+        .filter(
+          (h) =>
+            h.name.toLowerCase().includes(q) ||
+            h.nationality.toLowerCase().includes(q) ||
+            h.mobile.toLowerCase().includes(q) ||
+            h.whatsapp.toLowerCase().includes(q) ||
+            h.maidsCcId.toLowerCase().includes(q)
+        )
+        .slice(0, 8)
+    : [];
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const navigate = (key: string) => {
     onNavigate(key);
@@ -197,6 +247,54 @@ export function Shell({ state, route, onNavigate, onDispatch, children }: ShellP
             &#9776;
           </button>
           <h1>{title}</h1>
+          <div className="global-search">
+            <Search size={15} />
+            <input
+              ref={searchRef}
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setSearchOpen(true);
+              }}
+              onFocus={() => setSearchOpen(true)}
+              onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+              placeholder="Search maids…"
+              aria-label="Global search"
+            />
+            {!query && <kbd>⌘K</kbd>}
+            {query && searchOpen && (
+              <div className="global-search-results">
+                <header>
+                  Housemaids <span>{searchMatches.length}</span>
+                </header>
+                {searchMatches.length === 0 ? (
+                  <div className="global-search-empty">No maids match “{query}”.</div>
+                ) : (
+                  searchMatches.map((h) => (
+                    <button
+                      key={h.id}
+                      type="button"
+                      className="global-search-result"
+                      onMouseDown={() => {
+                        setQuery("");
+                        setSearchOpen(false);
+                        navigate(stageRoute(h.currentStage));
+                      }}
+                    >
+                      <span className="avatar avatar-sm">{initials(h.name)}</span>
+                      <span className="gs-main">
+                        <strong>{h.name}</strong>
+                        <small>
+                          {h.nationality} · {STAGE_LABELS[h.currentStage]}
+                        </small>
+                      </span>
+                      <StatusPill tone="neutral">{STAGE_LABELS[h.currentStage]}</StatusPill>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
           <div className="topbar-actions">
             <div className="role-preview">
               <span>Viewing as</span>

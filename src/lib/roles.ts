@@ -9,16 +9,16 @@ export const ROLES: { id: RoleId; label: string }[] = [
 ];
 
 export type NavKey =
-  | "dashboard" | "teamwork" | "reception"
+  | "dashboard" | "teamwork" | "reception" | "directory"
   | "retraction" | "media" | "publishing"
   | "users" | "config";
 
 export const ROLE_ACCESS: Record<RoleId, NavKey[]> = {
-  sysadmin: ["dashboard","teamwork","reception","retraction","media","publishing","users","config"],
-  superadmin: ["dashboard","teamwork","reception","retraction","media","publishing","users","config"],
-  retractor: ["dashboard","teamwork","reception","retraction","publishing"],
+  sysadmin: ["dashboard","teamwork","reception","directory","retraction","media","publishing","users","config"],
+  superadmin: ["dashboard","teamwork","reception","directory","retraction","media","publishing","users","config"],
+  retractor: ["dashboard","teamwork","reception","directory","retraction","publishing"],
   media: ["dashboard","teamwork","media"],
-  sales: ["dashboard","teamwork","publishing"],
+  sales: ["dashboard","teamwork","directory","publishing"],
 };
 
 export const ADMIN_ROLES: RoleId[] = ["sysadmin", "superadmin"];

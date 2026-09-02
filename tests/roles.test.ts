@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { canAccess, visibleNav, type NavKey } from "../src/lib/roles";
 
-const ALL: NavKey[] = ["dashboard", "teamwork", "reception", "retraction", "media", "publishing", "users", "config"];
+const ALL: NavKey[] = ["dashboard", "teamwork", "reception", "directory", "retraction", "media", "publishing", "users", "config"];
 
 describe("role visibility", () => {
   it("admins see everything", () => {
@@ -10,8 +10,8 @@ describe("role visibility", () => {
     }
   });
 
-  it("retractor sees reception, retraction and publishing (not media/config)", () => {
-    expect(visibleNav("retractor")).toEqual(["dashboard", "teamwork", "reception", "retraction", "publishing"]);
+  it("retractor sees reception, directory, retraction and publishing (not media/config)", () => {
+    expect(visibleNav("retractor")).toEqual(["dashboard", "teamwork", "reception", "directory", "retraction", "publishing"]);
     expect(canAccess("retractor", "media")).toBe(false);
     expect(canAccess("retractor", "config")).toBe(false);
   });
@@ -21,8 +21,8 @@ describe("role visibility", () => {
     expect(canAccess("media", "publishing")).toBe(false);
   });
 
-  it("sales sees publishing only", () => {
-    expect(visibleNav("sales")).toEqual(["dashboard", "teamwork", "publishing"]);
+  it("sales sees directory and publishing only", () => {
+    expect(visibleNav("sales")).toEqual(["dashboard", "teamwork", "directory", "publishing"]);
     expect(canAccess("sales", "retraction")).toBe(false);
   });
 });

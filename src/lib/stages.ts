@@ -58,6 +58,7 @@ export const NAV_TREE: NavNode[] = [
   { key: "dashboard", label: "Dashboard", kind: "link" },
   { key: "teamwork", label: "My Team's Work", kind: "link" },
   { key: "reception", label: "Reception", kind: "link" },
+  { key: "directory", label: "Directory", kind: "link" },
   { key: "retraction", label: "Retraction", kind: "group", children: [
     { key: "PendingRetraction", label: "Pending Retraction", kind: "queue" },
     { key: "MovedToOffboard", label: "Moved to Offboard", kind: "archive" },

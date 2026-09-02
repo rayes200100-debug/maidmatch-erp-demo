@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AppState, Action } from "../store";
 import { openTasks, maidById, archiveForOutcome } from "../store";
 import { sortRetraction } from "../lib/priority";
@@ -61,6 +61,10 @@ function roleLabel(id: string): string {
 export default function Retraction({ state, dispatch, route }: RetractionProps) {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [activePane, setActivePane] = useState<WorkspacePane>("task");
+
+  useEffect(() => {
+    setSelectedTaskId(null);
+  }, [route]);
 
   const openComplaints = (erpLink: string) => {
     window.open(erpLink, "_blank", "noopener,noreferrer");

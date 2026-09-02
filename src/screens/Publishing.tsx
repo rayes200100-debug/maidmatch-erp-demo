@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AppState, Action } from "../store";
 import { openTasks, maidById, archiveForOutcome } from "../store";
 import { PLATFORMS, OUTCOME_LABEL } from "../lib/stages";
@@ -71,6 +71,10 @@ function formatDate(ts: number): string {
 export default function Publishing({ state, dispatch, route }: PublishingProps) {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [activePane, setActivePane] = useState<WorkspacePane>("task");
+
+  useEffect(() => {
+    setSelectedTaskId(null);
+  }, [route]);
 
   const openComplaints = (erpLink: string) => {
     window.open(erpLink, "_blank", "noopener,noreferrer");

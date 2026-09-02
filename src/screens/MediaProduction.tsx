@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AppState, Action } from "../store";
 import { openTasks, maidById, archiveForOutcome } from "../store";
 import { DataTable, EmptyState, Panel } from "../components/primitives";
@@ -38,6 +38,10 @@ function initials(name: string): string {
 export default function MediaProduction({ state, dispatch, route }: MediaProductionProps) {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [activePane, setActivePane] = useState<WorkspacePane>("task");
+
+  useEffect(() => {
+    setSelectedTaskId(null);
+  }, [route]);
 
   const openComplaints = (erpLink: string) => {
     window.open(erpLink, "_blank", "noopener,noreferrer");
@@ -131,49 +135,18 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
     const maid = task ? maidById(state, task.housemaidId) : undefined;
 
     if (task && maid) {
-      const stockPhotoUrl = task.metadata?.stockPhotoUrl;
-      const stockVideoUrl = task.metadata?.stockVideoUrl;
+      const media = task.metadata?.stockPhotoUrl || task.metadata?.stockVideoUrl
+        ? {
+            stockPhotoUrl: task.metadata?.stockPhotoUrl,
+            stockVideoUrl: task.metadata?.stockVideoUrl,
+          }
+        : undefined;
 
       return (
         <div className="page-stack">
           <button type="button" className="text-button" onClick={() => setSelectedTaskId(null)}>
             &larr; Back to list
           </button>
-
-          {(stockPhotoUrl || stockVideoUrl) && (
-            <div
-              className="panel"
-              style={{
-                padding: "14px 16px",
-                display: "flex",
-                gap: 20,
-                flexWrap: "wrap",
-                alignItems: "center",
-              }}
-            >
-              <span
-                style={{
-                  color: "var(--muted)",
-                  fontSize: 12,
-                  fontWeight: 800,
-                  letterSpacing: ".06em",
-                  textTransform: "uppercase",
-                }}
-              >
-                Stock media from shooting
-              </span>
-              {stockPhotoUrl && (
-                <a className="text-button" href={stockPhotoUrl} target="_blank" rel="noreferrer">
-                  Stock photo
-                </a>
-              )}
-              {stockVideoUrl && (
-                <a className="text-button" href={stockVideoUrl} target="_blank" rel="noreferrer">
-                  Stock video
-                </a>
-              )}
-            </div>
-          )}
 
           <WorkspaceSplit
             maid={maid}
@@ -182,6 +155,7 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
             activePane={activePane}
             onTogglePane={(pane) => setActivePane(pane)}
             onOpenComplaints={openComplaints}
+            media={media}
           />
         </div>
       );

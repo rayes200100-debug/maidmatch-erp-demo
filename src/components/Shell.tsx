@@ -62,6 +62,13 @@ function sidebarUser(state: AppState): { name: string; roleLabel: string; initia
 
 export function Shell({ state, route, onNavigate, onDispatch, children }: ShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    for (const node of NAV_TREE) {
+      if (node.kind === "group" && isGroupActive(node, route)) initial.add(node.key);
+    }
+    return initial;
+  });
   const role = state.currentRole;
   const nodes = NAV_TREE.filter((n) => visibleNav(role).includes(n.key as NavKey));
   const title = titleFor(route);
@@ -106,7 +113,19 @@ export function Shell({ state, route, onNavigate, onDispatch, children }: ShellP
                   <span>{node.label}</span>
                 </button>
               ) : (
-                <details className="stage-nav" open={isGroupActive(node, route)}>
+                <details
+                  className="stage-nav"
+                  open={openGroups.has(node.key)}
+                  onToggle={(e) => {
+                    const open = e.currentTarget.open;
+                    setOpenGroups((prev) => {
+                      const next = new Set(prev);
+                      if (open) next.add(node.key);
+                      else next.delete(node.key);
+                      return next;
+                    });
+                  }}
+                >
                   <summary>
                     <span>
                       <i />

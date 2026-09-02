@@ -180,16 +180,32 @@ describe("makeSeedState consistency with seed housemaids", () => {
     }
   });
 
-  it("keeps terminal maids out of tasks and active maids out of outcomes", () => {
+  it("keeps terminal maids out of tasks and active maids out of terminal outcomes", () => {
     const s = makeSeedState();
+    const terminalTypes = new Set(["RetractedToCC", "MovedToOffboard", "Hired", "Cancelled"]);
     for (const h of seedHousemaids) {
       if (isTerminal(h.currentStage)) {
         expect(s.tasks.some((t) => t.housemaidId === h.id)).toBe(false);
       }
       if (queueTaskType(h.currentStage) !== null) {
-        expect(s.outcomes.some((o) => o.housemaidId === h.id)).toBe(false);
+        expect(s.outcomes.some((o) => o.housemaidId === h.id && terminalTypes.has(o.type))).toBe(false);
       }
     }
+  });
+
+  it("synthesizes historical outcomes for in-flight maids", () => {
+    const s = makeSeedState();
+    const pendingShooting = seedHousemaids.find((h) => h.currentStage === "PendingShooting");
+    expect(pendingShooting).toBeTruthy();
+    const psOutcomes = s.outcomes.filter((o) => o.housemaidId === pendingShooting!.id);
+    expect(psOutcomes.some((o) => o.type === "RetractedToMaidMatch")).toBe(true);
+    expect(psOutcomes.some((o) => o.type === "ProductionDone")).toBe(false);
+
+    const published = seedHousemaids.find((h) => h.currentStage === "AvailablePublished");
+    expect(published).toBeTruthy();
+    const pubOutcomes = s.outcomes.filter((o) => o.housemaidId === published!.id);
+    expect(pubOutcomes.some((o) => o.type === "RetractedToMaidMatch")).toBe(true);
+    expect(pubOutcomes.some((o) => o.type === "ProductionDone")).toBe(true);
   });
 
   it("publishing tasks carry an all-false publishState", () => {

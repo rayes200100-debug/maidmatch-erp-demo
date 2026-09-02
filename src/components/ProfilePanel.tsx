@@ -1,8 +1,14 @@
 import type { Housemaid } from "../data";
 
+export interface StockMedia {
+  stockPhotoUrl?: string;
+  stockVideoUrl?: string;
+}
+
 export interface ProfilePanelProps {
   maid: Housemaid;
   onOpenComplaints: (erpLink: string) => void;
+  media?: StockMedia;
 }
 
 function initials(name: string): string {
@@ -14,7 +20,7 @@ function initials(name: string): string {
     .toUpperCase();
 }
 
-export function ProfilePanel({ maid, onOpenComplaints }: ProfilePanelProps) {
+export function ProfilePanel({ maid, onOpenComplaints, media }: ProfilePanelProps) {
   const quickFields: [string, string][] = [
     ["Nationality", maid.nationality],
     ["Housemaid Type", maid.housemaidType],
@@ -47,6 +53,26 @@ export function ProfilePanel({ maid, onOpenComplaints }: ProfilePanelProps) {
           </div>
         ))}
       </div>
+
+      {(media?.stockPhotoUrl || media?.stockVideoUrl) && (
+        <div className="mini-section">
+          <div className="mini-section-head">
+            <h3>Stock media</h3>
+          </div>
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+            {media.stockPhotoUrl && (
+              <a className="text-button" href={media.stockPhotoUrl} target="_blank" rel="noreferrer">
+                Stock photo
+              </a>
+            )}
+            {media.stockVideoUrl && (
+              <a className="text-button" href={media.stockVideoUrl} target="_blank" rel="noreferrer">
+                Stock video
+              </a>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="mini-section">
         <div className="mini-section-head">

@@ -262,6 +262,27 @@ export function makeSeedState(): AppState {
         actorRole: "sysadmin",
       });
     }
+
+    const retractedStages = ["PendingShooting", "PendingEditing", "AvailablePendingPublishing", "AvailablePublished", "UnderTrial"];
+    const productionDoneStages = ["AvailablePendingPublishing", "AvailablePublished", "UnderTrial"];
+    if (retractedStages.includes(h.currentStage)) {
+      outcomes.push({
+        id: nextId("outcome"),
+        housemaidId: h.id,
+        type: "RetractedToMaidMatch",
+        timestamp: now - i * 1000 - 1000,
+        actorRole: "sysadmin",
+      });
+    }
+    if (productionDoneStages.includes(h.currentStage)) {
+      outcomes.push({
+        id: nextId("outcome"),
+        housemaidId: h.id,
+        type: "ProductionDone",
+        timestamp: now - i * 1000,
+        actorRole: "sysadmin",
+      });
+    }
   });
 
   return {

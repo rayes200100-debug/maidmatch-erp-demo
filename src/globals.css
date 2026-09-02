@@ -223,7 +223,7 @@ button.table-row { cursor: pointer; }
   .page-actions { width: 100%; overflow-x: auto; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .data-table { overflow: visible; }
-  .table-row { min-width: 0; grid-template-columns: 1fr auto; gap: 8px; padding: 12px; }
+  .table-row { min-width: 0; grid-template-columns: 1fr auto !important; gap: 8px; padding: 12px; }
   .table-head { display: none; }
   .table-row > span { display: none; }
   .table-row > .person-cell, .table-row > span:last-child { display: flex; }

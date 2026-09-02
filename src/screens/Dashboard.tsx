@@ -20,7 +20,7 @@ export default function Dashboard({ state }: DashboardProps) {
   const toCC = archiveForOutcome(state, "RetractedToCC").length;
   const toMaidMatch = archiveForOutcome(state, "RetractedToMaidMatch").length;
   const toOffboard = archiveForOutcome(state, "MovedToOffboard").length;
-  const enteredRetraction = toCC + toMaidMatch + toOffboard + countInStage(state, "PendingRetraction");
+  const enteredRetraction = state.housemaids.filter((h) => h.currentStage !== "Reception").length;
 
   const pendingPublishing = countInStage(state, "AvailablePendingPublishing");
   const published = countInStage(state, "AvailablePublished");

@@ -4,3 +4,6 @@ test-results
 .playwright-mcp
 .superpowers
 .DS_Store
+
+# screenshots / binary captures
+*.png

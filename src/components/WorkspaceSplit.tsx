@@ -1,5 +1,6 @@
 import type { Housemaid, Task } from "../data";
 import { ProfilePanel } from "./ProfilePanel";
+import type { StockMedia } from "./ProfilePanel";
 import { OutcomePanel } from "./OutcomePanel";
 import type { OutcomePanelProps } from "./OutcomePanel";
 
@@ -12,6 +13,7 @@ export interface WorkspaceSplitProps {
   activePane: WorkspacePane;
   onTogglePane: (pane: WorkspacePane) => void;
   onOpenComplaints: (erpLink: string) => void;
+  media?: StockMedia;
 }
 
 export function WorkspaceSplit({
@@ -21,6 +23,7 @@ export function WorkspaceSplit({
   activePane,
   onTogglePane,
   onOpenComplaints,
+  media,
 }: WorkspaceSplitProps) {
   return (
     <div className="workspace-split">
@@ -42,7 +45,7 @@ export function WorkspaceSplit({
       </div>
 
       <div className={`workspace-profile ${activePane !== "profile" ? "mobile-hidden" : ""}`.trim()}>
-        <ProfilePanel maid={maid} onOpenComplaints={onOpenComplaints} />
+        <ProfilePanel maid={maid} onOpenComplaints={onOpenComplaints} media={media} />
       </div>
 
       <div className={`workspace-task ${activePane !== "task" ? "mobile-hidden" : ""}`.trim()}>

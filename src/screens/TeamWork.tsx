@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
 import type { AppState, Action } from "../store";
 import { myTeamWork, maidById } from "../store";
 import { TASK_TYPE_LABEL } from "../lib/stages";
 import { ROLES } from "../lib/roles";
 import { DataTable, EmptyState, Panel, StatusPill } from "../components/primitives";
+import { WorkspaceSplit } from "../components/WorkspaceSplit";
+import type { WorkspacePane } from "../components/WorkspaceSplit";
 
 interface TeamWorkProps {
   state: AppState;
@@ -11,6 +14,20 @@ interface TeamWorkProps {
 }
 
 const ROLE_LABEL: Record<string, string> = Object.fromEntries(ROLES.map((r) => [r.id, r.label]));
+
+const CLOSING_ACTIONS = new Set([
+  "RETRACT_TO_CC",
+  "MOVE_TO_OFFBOARD",
+  "RETRACT_TO_MAIDMATCH",
+  "DONE_SHOOTING",
+  "EDITING_DONE",
+  "SEND_BACK_TO_SHOOTING",
+  "UNDER_TRIAL",
+  "HIRED",
+  "SEND_BACK_TO_PUBLISHED",
+  "SEND_BACK_TO_PENDING_PUBLISHING",
+  "CANCEL",
+]);
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -34,8 +51,25 @@ function roleLabel(assignedRole: string): string {
   return ROLE_LABEL[assignedRole] ?? assignedRole;
 }
 
-export default function TeamWork({ state, dispatch }: TeamWorkProps) {
+export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
   const tasks = myTeamWork(state);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [activePane, setActivePane] = useState<WorkspacePane>("task");
+
+  useEffect(() => {
+    setSelectedTaskId(null);
+  }, [route]);
+
+  const openComplaints = (erpLink: string) => {
+    window.open(erpLink, "_blank", "noopener,noreferrer");
+  };
+
+  const handleAction = (action: Action) => {
+    dispatch(action);
+    if (CLOSING_ACTIONS.has(action.type)) {
+      setSelectedTaskId(null);
+    }
+  };
 
   const columns = [
     { key: "maid", label: "Maid" },
@@ -44,6 +78,28 @@ export default function TeamWork({ state, dispatch }: TeamWorkProps) {
     { key: "age", label: "Age" },
     { key: "actions", label: "" },
   ];
+
+  if (selectedTaskId) {
+    const task = state.tasks.find((t) => t.id === selectedTaskId);
+    const maid = task ? maidById(state, task.housemaidId) : undefined;
+    if (task && maid) {
+      return (
+        <div className="page-stack">
+          <button type="button" className="text-button" onClick={() => setSelectedTaskId(null)}>
+            &larr; Back to list
+          </button>
+          <WorkspaceSplit
+            maid={maid}
+            task={task}
+            outcomeProps={{ onAction: handleAction }}
+            activePane={activePane}
+            onTogglePane={(pane) => setActivePane(pane)}
+            onOpenComplaints={openComplaints}
+          />
+        </div>
+      );
+    }
+  }
 
   const rows = tasks.map((task) => {
     const maid = maidById(state, task.housemaidId);
@@ -66,7 +122,11 @@ export default function TeamWork({ state, dispatch }: TeamWorkProps) {
           <StatusPill>{taskAge(state.now, task.createdAt)}</StatusPill>
         </span>
         <span style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button type="button" className="primary-button small">
+          <button
+            type="button"
+            className="primary-button small"
+            onClick={() => setSelectedTaskId(task.id)}
+          >
             Open Task
           </button>
         </span>

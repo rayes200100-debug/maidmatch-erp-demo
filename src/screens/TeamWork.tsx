@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { AppState, Action } from "../store";
 import { myTeamWork, maidById } from "../store";
 import { TASK_TYPE_LABEL } from "../lib/stages";
+import type { TaskType } from "../lib/stages";
 import { ROLES } from "../lib/roles";
 import { DataTable, EmptyState, Panel, StatusPill } from "../components/primitives";
 import { WorkspaceSplit } from "../components/WorkspaceSplit";
@@ -29,6 +30,8 @@ const CLOSING_ACTIONS = new Set([
   "CANCEL",
 ]);
 
+const TASK_TYPES: TaskType[] = ["retraction", "shooting", "editing", "publishing", "available", "trial"];
+
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "?";
@@ -55,6 +58,7 @@ export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
   const tasks = myTeamWork(state);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [activePane, setActivePane] = useState<WorkspacePane>("task");
+  const [typeFilter, setTypeFilter] = useState<TaskType | "all">("all");
 
   useEffect(() => {
     setSelectedTaskId(null);
@@ -101,7 +105,9 @@ export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
     }
   }
 
-  const rows = tasks.map((task) => {
+  const rows = tasks
+    .filter((t) => typeFilter === "all" || t.type === typeFilter)
+    .map((task) => {
     const maid = maidById(state, task.housemaidId);
     return (
       <div className="table-row" key={task.id}>
@@ -140,7 +146,7 @@ export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
         <div>
           <span className="eyebrow">Team Queue</span>
           <h1>My Team's Work</h1>
-          <p>Open tasks assigned to your role, oldest first.</p>
+          <p>Open tasks assigned to your role.</p>
         </div>
         <div className="page-actions">
           {state.onBreak && <StatusPill tone="info">On break</StatusPill>}
@@ -154,7 +160,24 @@ export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
         </div>
       </header>
 
-      {tasks.length === 0 ? (
+      {tasks.length > 0 && (
+        <div className="task-type-tabs" role="tablist" aria-label="Filter by task type">
+          <button type="button" className={typeFilter === "all" ? "active" : ""} onClick={() => setTypeFilter("all")}>
+            All <span>{tasks.length}</span>
+          </button>
+          {TASK_TYPES.map((tt) => {
+            const count = tasks.filter((t) => t.type === tt).length;
+            if (count === 0) return null;
+            return (
+              <button key={tt} type="button" className={typeFilter === tt ? "active" : ""} onClick={() => setTypeFilter(tt)}>
+                {TASK_TYPE_LABEL[tt]} <span>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {rows.length === 0 ? (
         <Panel>
           <EmptyState
             title="No open tasks"

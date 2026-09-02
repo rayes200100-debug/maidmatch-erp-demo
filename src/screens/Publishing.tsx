@@ -36,6 +36,14 @@ const QUEUE_COLUMNS = [
   { key: "actions", label: "" },
 ];
 
+const TRIAL_COLUMNS = [
+  { key: "name", label: "Name" },
+  { key: "nationality", label: "Nationality" },
+  { key: "age", label: "Age" },
+  { key: "employer", label: "Employer" },
+  { key: "actions", label: "" },
+];
+
 const HIRED_COLUMNS = [
   { key: "name", label: "Name" },
   { key: "nationality", label: "Nationality" },
@@ -278,6 +286,11 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
         <span>
           <strong>{maid ? `${maid.age}y` : "—"}</strong>
         </span>
+        {isTrial && (
+          <span>
+            <strong>{maid?.employerName ?? "—"}</strong>
+          </span>
+        )}
         <span style={{ display: "flex", justifyContent: "flex-end" }}>
           <button
             type="button"
@@ -306,14 +319,14 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
       </header>
 
       <Panel className="flush">
-        <div className="publishing-queue-table">
+        <div className={`publishing-queue-table ${isTrial ? "trial" : ""}`.trim()}>
           {tasks.length === 0 ? (
             <EmptyState
               title={isTrial ? "No maids under trial" : "No maids published"}
               hint={isTrial ? "Trials will appear here." : "Published maids will appear here."}
             />
           ) : (
-            <DataTable columns={QUEUE_COLUMNS} rows={rows} />
+            <DataTable columns={isTrial ? TRIAL_COLUMNS : QUEUE_COLUMNS} rows={rows} />
           )}
         </div>
       </Panel>

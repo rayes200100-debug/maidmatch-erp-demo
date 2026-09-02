@@ -21,12 +21,11 @@ function initials(name: string): string {
 
 const columns = [
   { key: "name", label: "Name" },
-  { key: "mobile", label: "Mobile" },
-  { key: "whatsapp", label: "WhatsApp" },
+  { key: "contact", label: "Contact" },
   { key: "nationality", label: "Nationality" },
   { key: "maidsCcId", label: "Maids.cc ID" },
   { key: "age", label: "Age" },
-  { key: "visaExpiry", label: "Visa Expiry" },
+  { key: "expiry", label: "Expiry" },
   { key: "actions", label: "" },
 ];
 
@@ -59,9 +58,7 @@ export default function Reception({ state, dispatch }: ReceptionProps) {
       </span>
       <span>
         <strong>{h.mobile || "—"}</strong>
-      </span>
-      <span>
-        <strong>{h.whatsapp || "—"}</strong>
+        <small>{h.whatsapp || "—"}</small>
       </span>
       <span>
         <strong>{h.nationality}</strong>
@@ -73,7 +70,8 @@ export default function Reception({ state, dispatch }: ReceptionProps) {
         <strong>{h.age}y</strong>
       </span>
       <span>
-        <strong>{h.visaExpiry}</strong>
+        <strong>Visa {h.visaExpiry}</strong>
+        <small>Passport {h.passportExpiry}</small>
       </span>
       <span style={{ display: "flex", justifyContent: "flex-end" }}>
         <button

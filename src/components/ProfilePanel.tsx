@@ -103,6 +103,24 @@ export function ProfilePanel({ maid, onOpenComplaints, media }: ProfilePanelProp
 
       <JourneyStepper stage={maid.currentStage} />
 
+      {(maid.employerName || maid.maidsCcProfileLink) && (
+        <div className="mini-section">
+          <div className="mini-section-head">
+            <h3>Employer</h3>
+          </div>
+          <div style={{ display: "grid", gap: 6 }}>
+            {maid.employerName && (
+              <span style={{ fontSize: 12, color: "var(--ink-soft)" }}>{maid.employerName}</span>
+            )}
+            {maid.maidsCcProfileLink && (
+              <a className="text-button" href={maid.maidsCcProfileLink} target="_blank" rel="noreferrer">
+                View on maids.cc
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
       {(media?.stockPhotoUrl || media?.stockVideoUrl) && (
         <div className="mini-section">
           <div className="mini-section-head">

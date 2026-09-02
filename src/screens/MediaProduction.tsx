@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Image, Video } from "lucide-react";
 import type { AppState, Action } from "../store";
 import { openTasks, maidById, archiveForOutcome } from "../store";
 import { DataTable, EmptyState, Panel } from "../components/primitives";
@@ -79,8 +80,8 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
           </span>
           <span>
             {finalPhoto ? (
-              <a className="text-button" href={finalPhoto} target="_blank" rel="noreferrer">
-                View photo
+              <a className="media-thumb" href={finalPhoto} target="_blank" rel="noreferrer">
+                <Image size={15} /> Photo
               </a>
             ) : (
               <small>—</small>
@@ -88,8 +89,8 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
           </span>
           <span>
             {finalVideo ? (
-              <a className="text-button" href={finalVideo} target="_blank" rel="noreferrer">
-                View video
+              <a className="media-thumb" href={finalVideo} target="_blank" rel="noreferrer">
+                <Video size={15} /> Video
               </a>
             ) : (
               <small>—</small>

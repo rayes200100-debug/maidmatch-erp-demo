@@ -61,6 +61,10 @@ export default function UsersScreen({ state, dispatch }: UsersProps) {
   };
 
   const submit = () => {
+    if (!name.trim()) {
+      setError("Name is required.");
+      return;
+    }
     if (!email.trim()) {
       setError("Email is required.");
       return;

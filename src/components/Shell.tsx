@@ -1,11 +1,12 @@
 import { Fragment, useState } from "react";
 import type { ReactNode } from "react";
+import { Bell } from "lucide-react";
 import type { AppState, Action } from "../store";
 import { openTasks, archiveForOutcome } from "../store";
 import type { RoleId, NavKey } from "../lib/roles";
 import { ROLES, visibleNav } from "../lib/roles";
-import type { NavNode, Stage, OutcomeType } from "../lib/stages";
-import { NAV_TREE, queueTaskType } from "../lib/stages";
+import type { NavNode, Stage, OutcomeType, TaskType } from "../lib/stages";
+import { NAV_TREE, queueTaskType, TASK_TYPE_LABEL } from "../lib/stages";
 
 interface ShellProps {
   state: AppState;
@@ -60,8 +61,18 @@ function sidebarUser(state: AppState): { name: string; roleLabel: string; initia
   return { name, roleLabel, initials };
 }
 
+const TASK_TYPE_ROUTE: Record<TaskType, string> = {
+  retraction: "PendingRetraction",
+  shooting: "PendingShooting",
+  editing: "PendingEditing",
+  publishing: "AvailablePendingPublishing",
+  available: "AvailablePublished",
+  trial: "UnderTrial",
+};
+
 export function Shell({ state, route, onNavigate, onDispatch, children }: ShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     for (const node of NAV_TREE) {
@@ -74,6 +85,10 @@ export function Shell({ state, route, onNavigate, onDispatch, children }: ShellP
   const title = titleFor(route);
   const flow = primaryFlow(state);
   const user = sidebarUser(state);
+  const openByType = (Object.keys(TASK_TYPE_ROUTE) as TaskType[])
+    .map((tt) => ({ type: tt, count: openTasks(state, tt).length }))
+    .filter((x) => x.count > 0);
+  const totalOpen = openByType.reduce((acc, x) => acc + x.count, 0);
 
   const navigate = (key: string) => {
     onNavigate(key);
@@ -153,14 +168,13 @@ export function Shell({ state, route, onNavigate, onDispatch, children }: ShellP
             </Fragment>
           ))}
         </nav>
-        <button type="button" className="sidebar-user">
+        <div className="sidebar-user">
           <span className="user-avatar">{user.initials}</span>
           <span style={{ display: "grid", gap: "2px", minWidth: 0 }}>
             <strong>{user.name}</strong>
             <small>{user.roleLabel}</small>
           </span>
-          <span aria-hidden>&rsaquo;</span>
-        </button>
+        </div>
       </aside>
 
       {menuOpen && (
@@ -197,9 +211,40 @@ export function Shell({ state, route, onNavigate, onDispatch, children }: ShellP
                 ))}
               </select>
             </div>
-            <button type="button" className="icon-button" aria-label="Notifications">
-              &#128276;
-            </button>
+            <div className="notification-wrap">
+              <button
+                type="button"
+                className="icon-button"
+                aria-label="Notifications"
+                aria-expanded={notifOpen}
+                onClick={() => setNotifOpen((o) => !o)}
+              >
+                <Bell size={18} />
+                {totalOpen > 0 && <i className="unread-dot" />}
+              </button>
+              {notifOpen && (
+                <div className="notif-panel" role="menu">
+                  <header>Open work</header>
+                  {openByType.length === 0 ? (
+                    <p>No open tasks.</p>
+                  ) : (
+                    openByType.map((x) => (
+                      <button
+                        key={x.type}
+                        type="button"
+                        onClick={() => {
+                          setNotifOpen(false);
+                          navigate(TASK_TYPE_ROUTE[x.type]);
+                        }}
+                      >
+                        <span>{TASK_TYPE_LABEL[x.type]}</span>
+                        <b>{x.count}</b>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </header>
         <main className="content">{children}</main>

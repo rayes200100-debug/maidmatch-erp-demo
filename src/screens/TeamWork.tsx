@@ -119,7 +119,7 @@ export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
           <strong>{roleLabel(task.assignedRole)}</strong>
         </span>
         <span>
-          <StatusPill>{taskAge(state.now, task.createdAt)}</StatusPill>
+          <StatusPill>{taskAge(Date.now(), task.createdAt)}</StatusPill>
         </span>
         <span style={{ display: "flex", justifyContent: "flex-end" }}>
           <button

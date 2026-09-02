@@ -93,8 +93,8 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
     }
   };
 
-  const flag = (housemaidId: string, platform: Platform) => {
-    dispatch({ type: "FLAG_PLATFORM", housemaidId, platform, now: Date.now() });
+  const togglePlatform = (housemaidId: string, platform: Platform, green: boolean) => {
+    dispatch({ type: green ? "UNFLAG_PLATFORM" : "FLAG_PLATFORM", housemaidId, platform, now: Date.now() });
   };
 
   if (route === "Hired" || route === "Cancelled") {
@@ -187,8 +187,9 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
                 <button
                   type="button"
                   className="platform-cell"
-                  onClick={() => flag(task.housemaidId, platform)}
-                  aria-label={`${PLATFORM_LABEL[platform]} — ${green ? "published" : "not published"}`}
+                  onClick={() => togglePlatform(task.housemaidId, platform, green)}
+                  aria-label={`${green ? "Unpublish from" : "Publish to"} ${PLATFORM_LABEL[platform]}`}
+                  aria-pressed={green}
                 >
                   <i className={green ? "green" : ""}>&#10003;</i>
                   <span>{PLATFORM_LABEL[platform]}</span>

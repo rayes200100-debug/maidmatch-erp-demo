@@ -84,6 +84,16 @@ describe("FLAG_PLATFORM auto-advance", () => {
     expect(s.tasks.find((t) => t.type === "publishing")!.status).toBe("closed");
     expect(s.tasks.filter((t) => t.type === "available" && t.status === "open")).toHaveLength(1);
   });
+
+  it("UNFLAG_PLATFORM turns a platform back off without advancing", () => {
+    let s: AppState = {
+      ...base([maid("AvailablePendingPublishing")]),
+      tasks: [{ id: "t1", housemaidId: "m1", type: "publishing", status: "open", assignedRole: "sales", createdAt: 900, metadata: { publishState: { maidmatch: true, peekaboo: false, yaya: false } } }],
+    };
+    s = reducer(s, { type: "UNFLAG_PLATFORM", housemaidId: "m1", platform: "maidmatch", now: 1000 });
+    expect(s.housemaids[0].currentStage).toBe("AvailablePendingPublishing");
+    expect(s.tasks.find((t) => t.type === "publishing")!.metadata?.publishState?.maidmatch).toBe(false);
+  });
 });
 
 describe("selectors", () => {

@@ -27,6 +27,7 @@ export type Action =
   | { type: "EDITING_DONE"; housemaidId: string; actor: RoleId; now: number; finalPhoto: string; finalVideo?: string }
   | { type: "SEND_BACK_TO_SHOOTING"; housemaidId: string; actor: RoleId; now: number; comment?: string }
   | { type: "FLAG_PLATFORM"; housemaidId: string; platform: Platform; now: number }
+  | { type: "UNFLAG_PLATFORM"; housemaidId: string; platform: Platform; now: number }
   | { type: "UNDER_TRIAL"; housemaidId: string; actor: RoleId; now: number; employerName?: string; maidsCcProfileLink?: string }
   | { type: "HIRED"; housemaidId: string; actor: RoleId; now: number }
   | { type: "SEND_BACK_TO_PUBLISHED"; housemaidId: string; actor: RoleId; now: number }
@@ -154,6 +155,12 @@ export function reducer(state: AppState, action: Action): AppState {
         housemaids: setStage(state, action.housemaidId, "AvailablePublished"),
         tasks: [...tasks.map((t): Task => (t.id === task.id ? { ...t, status: "closed", closedAt: action.now } : t)), newTask(state, action.housemaidId, "available", action.now)],
       };
+    }
+    case "UNFLAG_PLATFORM": {
+      const task = openTaskFor(state, action.housemaidId, "publishing");
+      if (!task) return state;
+      const publishState: Record<Platform, boolean> = { maidmatch: false, peekaboo: false, yaya: false, ...(task.metadata?.publishState), [action.platform]: false };
+      return { ...state, tasks: state.tasks.map((t) => t.id === task.id ? { ...t, metadata: { ...t.metadata, publishState } } : t) };
     }
     case "UNDER_TRIAL": {
       const h = state.housemaids.find((x) => x.id === action.housemaidId);

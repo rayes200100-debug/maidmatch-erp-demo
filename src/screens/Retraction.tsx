@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Lock } from "lucide-react";
 import type { AppState, Action } from "../store";
 import { openTasks, maidById, archiveForOutcome } from "../store";
 import { sortRetraction } from "../lib/priority";
@@ -179,11 +180,14 @@ export default function Retraction({ state, dispatch, route }: RetractionProps) 
     const maid = maidById(state, row.task.housemaidId);
     const locked = index > 0;
     return (
-      <div className="table-row" key={row.task.id}>
+      <div className={"table-row" + (locked ? " is-locked" : "")} key={row.task.id}>
         <span className="person-cell">
           <span className="avatar avatar-sm">{initials(maid?.name ?? row.task.housemaidId)}</span>
           <span style={{ minWidth: 0 }}>
             <strong>{maid?.name ?? row.task.housemaidId}</strong>
+            <small className="mobile-subline">
+              {maid?.nationality ?? "—"} · {maid?.housemaidType ?? "—"}
+            </small>
           </span>
         </span>
         <span>
@@ -195,15 +199,12 @@ export default function Retraction({ state, dispatch, route }: RetractionProps) 
         <span>
           {maid?.isGoldenProfile ? <StatusPill tone="gold">Golden</StatusPill> : "—"}
         </span>
-        <span style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+        <span style={{ display: "flex", justifyContent: "flex-end", gap: 8, alignItems: "center" }}>
           {locked ? (
-            <>
-              <span aria-hidden style={{ fontSize: 14 }}>&#128274;</span>
-              <button type="button" className="primary-button small" disabled>
-                Open Task
-              </button>
-              <StatusPill tone="info">Locked — finish first</StatusPill>
-            </>
+            <span className="locked-action" title="Locked — finish the first maid to unlock">
+              <Lock size={15} aria-hidden />
+              <small>Locked</small>
+            </span>
           ) : (
             <button
               type="button"
@@ -221,8 +222,11 @@ export default function Retraction({ state, dispatch, route }: RetractionProps) 
   return (
     <div className="page-stack">
       <style>{`
-        .retraction-queue-table .table-row { grid-template-columns: 1.6fr .8fr .7fr .7fr auto; }
-        .retraction-queue-table .primary-button:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+        .retraction-queue-table .table-row { grid-template-columns: 1.6fr .8fr .7fr .7fr 140px; }
+        .retraction-queue-table .table-row.is-locked { background: var(--surface-soft); }
+        .retraction-queue-table .table-row.is-locked:hover { background: var(--surface-soft); }
+        .retraction-queue-table .locked-action { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+        .retraction-queue-table .locked-action small { margin-top: 0; color: var(--muted); font-weight: 700; }
       `}</style>
 
       <header className="page-header">

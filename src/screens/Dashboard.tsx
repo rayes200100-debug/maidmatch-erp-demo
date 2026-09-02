@@ -34,6 +34,7 @@ export default function Dashboard({ state }: DashboardProps) {
   const successRatio = reachedPublishing > 0 ? (hired / reachedPublishing) * 100 : null;
 
   const avgByStage = avgTimeByStage(state);
+  const hasClosedTasks = state.tasks.some((t) => t.closedAt != null);
 
   return (
     <div className="page-stack">
@@ -65,23 +66,36 @@ export default function Dashboard({ state }: DashboardProps) {
             </div>
           </div>
           <div style={{ marginTop: 6 }}>
-            {STAGE_ENTRIES.map(([stage, taskType]) => (
+            {!hasClosedTasks ? (
               <div
-                key={stage}
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "11px 0",
-                  borderTop: "1px solid var(--line)",
+                  padding: "14px 0 4px",
+                  color: "var(--muted)",
+                  fontSize: 12,
+                  lineHeight: 1.55,
                 }}
               >
-                <span style={{ color: "var(--ink-soft)", fontSize: 12 }}>
-                  {TASK_TYPE_LABEL[taskType]}
-                </span>
-                <strong style={{ fontSize: 13 }}>{(avgByStage[stage] ?? 0).toFixed(1)}h</strong>
+                No completed tasks yet — averages appear once the first task closes.
               </div>
-            ))}
+            ) : (
+              STAGE_ENTRIES.map(([stage, taskType]) => (
+                <div
+                  key={stage}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "11px 0",
+                    borderTop: "1px solid var(--line)",
+                  }}
+                >
+                  <span style={{ color: "var(--ink-soft)", fontSize: 12 }}>
+                    {TASK_TYPE_LABEL[taskType]}
+                  </span>
+                  <strong style={{ fontSize: 13 }}>{(avgByStage[stage] ?? 0).toFixed(1)}h</strong>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </Panel>

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { reducer, openTasks, myTeamWork, archiveForOutcome, avgTimeByStage, makeSeedState, type AppState } from "../src/store";
-import { defaultConfig, type Housemaid } from "../src/data";
+import { defaultConfig, seedHousemaids, type Housemaid } from "../src/data";
+import { queueTaskType, isTerminal } from "../src/lib/stages";
 
 function maid(stage: Housemaid["currentStage"] = "Reception"): Housemaid {
   return {
@@ -126,10 +127,66 @@ describe("selectors", () => {
   it("makeSeedState returns a populated base state", () => {
     const s = makeSeedState();
     expect(s.housemaids.length).toBeGreaterThan(0);
-    expect(s.tasks).toHaveLength(0);
-    expect(s.outcomes).toHaveLength(0);
+    expect(s.tasks.length).toBeGreaterThan(0);
+    expect(s.outcomes.length).toBeGreaterThan(0);
     expect(s.currentRole).toBe("sysadmin");
     expect(s.onBreak).toBe(false);
+  });
+});
+
+describe("makeSeedState consistency with seed housemaids", () => {
+  it("creates exactly one matching open task per active-stage housemaid", () => {
+    const s = makeSeedState();
+    const active = seedHousemaids.filter((h) => queueTaskType(h.currentStage) !== null);
+    expect(active.length).toBeGreaterThan(0);
+    for (const h of active) {
+      const type = queueTaskType(h.currentStage)!;
+      const open = s.tasks.filter((t) => t.housemaidId === h.id && t.type === type && t.status === "open");
+      expect(open).toHaveLength(1);
+      expect(open[0].assignedRole).toBe(defaultConfig.defaultRolePerTask[type]);
+    }
+    expect(s.tasks.every((t) => t.status === "open")).toBe(true);
+  });
+
+  it("creates exactly one matching outcome per terminal-stage housemaid", () => {
+    const s = makeSeedState();
+    const terminal = seedHousemaids.filter((h) => isTerminal(h.currentStage));
+    expect(terminal.length).toBeGreaterThan(0);
+    for (const h of terminal) {
+      const outs = s.outcomes.filter((o) => o.housemaidId === h.id && o.type === h.currentStage);
+      expect(outs).toHaveLength(1);
+      expect(outs[0].actorRole).toBe("sysadmin");
+    }
+  });
+
+  it("creates no open tasks for Reception-stage maids", () => {
+    const s = makeSeedState();
+    const reception = seedHousemaids.filter((h) => h.currentStage === "Reception");
+    expect(reception.length).toBeGreaterThan(0);
+    for (const h of reception) {
+      expect(s.tasks.some((t) => t.housemaidId === h.id && t.status === "open")).toBe(false);
+    }
+  });
+
+  it("keeps terminal maids out of tasks and active maids out of outcomes", () => {
+    const s = makeSeedState();
+    for (const h of seedHousemaids) {
+      if (isTerminal(h.currentStage)) {
+        expect(s.tasks.some((t) => t.housemaidId === h.id)).toBe(false);
+      }
+      if (queueTaskType(h.currentStage) !== null) {
+        expect(s.outcomes.some((o) => o.housemaidId === h.id)).toBe(false);
+      }
+    }
+  });
+
+  it("publishing tasks carry an all-false publishState", () => {
+    const s = makeSeedState();
+    const publishing = s.tasks.filter((t) => t.type === "publishing");
+    expect(publishing.length).toBeGreaterThan(0);
+    for (const t of publishing) {
+      expect(t.metadata?.publishState).toEqual({ maidmatch: false, peekaboo: false, yaya: false });
+    }
   });
 });
 

@@ -2,7 +2,7 @@ import type { Housemaid, Outcome, SystemConfig, Task, User } from "./data";
 import { defaultConfig, seedHousemaids, seedUsers } from "./data";
 import type { RoleId } from "./lib/roles";
 import type { OutcomeType, Platform, Stage, TaskType } from "./lib/stages";
-import { STAGE_TO_TASK } from "./lib/stages";
+import { STAGE_TO_TASK, queueTaskType, isTerminal } from "./lib/stages";
 import { avgActiveHours } from "./lib/hours";
 
 export interface AppState {
@@ -235,14 +235,41 @@ export function avgTimeByStage(state: AppState): Partial<Record<Stage, number>> 
 }
 
 export function makeSeedState(): AppState {
+  const now = Date.now();
+  const tasks: Task[] = [];
+  const outcomes: Outcome[] = [];
+
+  seedHousemaids.forEach((h, i) => {
+    const taskType = queueTaskType(h.currentStage);
+    if (taskType) {
+      tasks.push({
+        id: nextId("task"),
+        housemaidId: h.id,
+        type: taskType,
+        status: "open",
+        assignedRole: defaultConfig.defaultRolePerTask[taskType],
+        createdAt: now - i * 1000,
+        metadata: taskType === "publishing" ? { publishState: { maidmatch: false, peekaboo: false, yaya: false } } : undefined,
+      });
+    } else if (isTerminal(h.currentStage)) {
+      outcomes.push({
+        id: nextId("outcome"),
+        housemaidId: h.id,
+        type: h.currentStage as unknown as OutcomeType,
+        timestamp: now,
+        actorRole: "sysadmin",
+      });
+    }
+  });
+
   return {
     housemaids: seedHousemaids,
     users: seedUsers,
-    tasks: [],
-    outcomes: [],
+    tasks,
+    outcomes,
     currentRole: "sysadmin",
     onBreak: false,
     config: defaultConfig,
-    now: Date.now(),
+    now,
   };
 }

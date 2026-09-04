@@ -18,6 +18,8 @@ interface ShellProps {
 }
 
 function titleFor(route: string): string {
+  if (route.startsWith("task/")) return "Task";
+  if (route.startsWith("maid/")) return "Housemaid Profile";
   for (const node of NAV_TREE) {
     if (node.kind === "link" && node.key === route) return node.label;
     if (node.kind === "group") {
@@ -67,6 +69,7 @@ function initials(name: string): string {
 
 const TASK_TYPE_ROUTE: Record<TaskType, string> = {
   retraction: "PendingRetraction",
+  documents: "DocumentsCollection",
   shooting: "PendingShooting",
   editing: "PendingEditing",
   publishing: "AvailablePendingPublishing",
@@ -77,6 +80,7 @@ const TASK_TYPE_ROUTE: Record<TaskType, string> = {
 const STAGE_LABELS: Record<Stage, string> = {
   Reception: "Reception",
   PendingRetraction: "Pending Retraction",
+  DocumentsCollection: "Documents Collection",
   PendingShooting: "Pending Shooting",
   PendingEditing: "Pending Editing",
   AvailablePendingPublishing: "Available Pending Publishing",

@@ -25,3 +25,19 @@ export function avgActiveHours(spans: [number, number][], wh: WorkingHours, days
   const sum = spans.reduce((acc, [s, e]) => acc + activeHoursBetween(s, e, wh, daysOff), 0);
   return sum / spans.length;
 }
+
+/**
+ * Human "time in queue" counting only configured working hours/days — an overnight or a
+ * weekend must not make a maid look neglected. Returns e.g. "3h 20m", "1d 4h", or "42m".
+ */
+export function activeTimeInQueue(startMs: number, endMs: number, wh: WorkingHours, daysOff: number[]): string {
+  const hours = activeHoursBetween(startMs, endMs, wh, daysOff);
+  const totalMinutes = Math.floor(hours * 60);
+  if (totalMinutes < 60) return `${totalMinutes}m`;
+  const days = Math.floor(totalMinutes / (wh.endHour - wh.startHour) / 60);
+  const rem = totalMinutes - days * (wh.endHour - wh.startHour) * 60;
+  const h = Math.floor(rem / 60);
+  const m = rem % 60;
+  if (days > 0) return `${days}d ${h}h`;
+  return `${h}h ${m}m`;
+}

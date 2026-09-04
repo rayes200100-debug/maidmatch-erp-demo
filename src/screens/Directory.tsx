@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search, X } from "lucide-react";
 import type { AppState, Action } from "../store";
-import { HOUSEMAID_TYPE_OPTIONS, NATIONALITY_OPTIONS } from "../data";
+import { HOUSEMAID_TYPE_OPTIONS, NATIONALITY_OPTIONS, maidTypeLabel } from "../data";
 import type { Stage } from "../lib/stages";
 import { DataTable, EmptyState, Panel, StatusPill } from "../components/primitives";
 
@@ -9,13 +9,15 @@ interface DirectoryProps {
   state: AppState;
   dispatch: (a: Action) => void;
   route: string;
+  onNavigate: (key: string) => void;
 }
 
 const STAGE_LABELS: Record<Stage, string> = {
   Reception: "Reception",
   PendingRetraction: "Pending Retraction",
-  PendingShooting: "Pending Shooting",
-  PendingEditing: "Pending Editing",
+  DocumentsCollection: "Documents Collection",
+  PendingShooting: "Videographers",
+  PendingEditing: "Editors",
   AvailablePendingPublishing: "Available Pending Publishing",
   AvailablePublished: "Available & Published",
   UnderTrial: "Under Trial",
@@ -28,6 +30,7 @@ const STAGE_LABELS: Record<Stage, string> = {
 const STAGE_ORDER: Stage[] = [
   "Reception",
   "PendingRetraction",
+  "DocumentsCollection",
   "PendingShooting",
   "PendingEditing",
   "AvailablePendingPublishing",
@@ -56,6 +59,7 @@ function stageTone(stage: Stage): "neutral" | "success" | "warning" | "danger" |
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
   return parts
     .slice(0, 2)
     .map((p) => p[0])
@@ -70,9 +74,10 @@ const columns = [
   { key: "age", label: "Age" },
   { key: "stage", label: "Stage" },
   { key: "golden", label: "Golden" },
+  { key: "actions", label: "" },
 ];
 
-export default function Directory({ state }: DirectoryProps) {
+export default function Directory({ state, onNavigate }: DirectoryProps) {
   const [search, setSearch] = useState("");
   const [nationality, setNationality] = useState("all");
   const [type, setType] = useState("all");
@@ -96,7 +101,7 @@ export default function Directory({ state }: DirectoryProps) {
   const rows = filtered.map((maid) => (
     <div className="table-row" key={maid.id}>
       <span className="person-cell">
-        <span className="avatar avatar-sm">{initials(maid.name)}</span>
+        <span className="avatar avatar-sm">{maid.photoUrl ? <img src={maid.photoUrl} alt={maid.name} /> : initials(maid.name)}</span>
         <span style={{ minWidth: 0 }}>
           <strong>{maid.name}</strong>
           <small>{maid.mobile}</small>
@@ -106,7 +111,7 @@ export default function Directory({ state }: DirectoryProps) {
         <strong>{maid.nationality}</strong>
       </span>
       <span>
-        <strong>{maid.housemaidType}</strong>
+        <strong>{maidTypeLabel(maid)}</strong>
       </span>
       <span>
         <strong>{maid.age}y</strong>
@@ -115,6 +120,11 @@ export default function Directory({ state }: DirectoryProps) {
         <StatusPill tone={stageTone(maid.currentStage)}>{STAGE_LABELS[maid.currentStage]}</StatusPill>
       </span>
       <span>{maid.isGoldenProfile ? <StatusPill tone="gold">Golden</StatusPill> : "—"}</span>
+      <span style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button type="button" className="secondary-button small" onClick={() => onNavigate(`maid/${maid.id}`)}>
+          Open Profile
+        </button>
+      </span>
     </div>
   ));
 
@@ -124,7 +134,7 @@ export default function Directory({ state }: DirectoryProps) {
         <div>
           <span className="eyebrow">Workspace</span>
           <h1>Directory</h1>
-          <p>Every housemaid in the system, across all stages.</p>
+          <p>Every housemaid in the system, across all stages. Open a profile for the full picture.</p>
         </div>
       </header>
 

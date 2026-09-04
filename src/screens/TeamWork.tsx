@@ -5,32 +5,17 @@ import { TASK_TYPE_LABEL } from "../lib/stages";
 import type { TaskType } from "../lib/stages";
 import { ROLES } from "../lib/roles";
 import { DataTable, EmptyState, Panel, StatusPill } from "../components/primitives";
-import { WorkspaceSplit } from "../components/WorkspaceSplit";
-import type { WorkspacePane } from "../components/WorkspaceSplit";
 
 interface TeamWorkProps {
   state: AppState;
   dispatch: (a: Action) => void;
   route: string;
+  onNavigate: (key: string) => void;
 }
 
 const ROLE_LABEL: Record<string, string> = Object.fromEntries(ROLES.map((r) => [r.id, r.label]));
 
-const CLOSING_ACTIONS = new Set([
-  "RETRACT_TO_CC",
-  "MOVE_TO_OFFBOARD",
-  "RETRACT_TO_MAIDMATCH",
-  "DONE_SHOOTING",
-  "EDITING_DONE",
-  "SEND_BACK_TO_SHOOTING",
-  "UNDER_TRIAL",
-  "HIRED",
-  "SEND_BACK_TO_PUBLISHED",
-  "SEND_BACK_TO_PENDING_PUBLISHING",
-  "CANCEL",
-]);
-
-const TASK_TYPES: TaskType[] = ["retraction", "shooting", "editing", "publishing", "available", "trial"];
+const TASK_TYPES: TaskType[] = ["retraction", "documents", "shooting", "editing", "publishing", "available", "trial"];
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -54,26 +39,13 @@ function roleLabel(assignedRole: string): string {
   return ROLE_LABEL[assignedRole] ?? assignedRole;
 }
 
-export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
+export default function TeamWork({ state, dispatch, route, onNavigate }: TeamWorkProps) {
   const tasks = myTeamWork(state);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [activePane, setActivePane] = useState<WorkspacePane>("task");
   const [typeFilter, setTypeFilter] = useState<TaskType | "all">("all");
 
   useEffect(() => {
-    setSelectedTaskId(null);
+    setTypeFilter("all");
   }, [route]);
-
-  const openComplaints = (erpLink: string) => {
-    window.open(erpLink, "_blank", "noopener,noreferrer");
-  };
-
-  const handleAction = (action: Action) => {
-    dispatch(action);
-    if (CLOSING_ACTIONS.has(action.type)) {
-      setSelectedTaskId(null);
-    }
-  };
 
   const columns = [
     { key: "maid", label: "Maid" },
@@ -82,28 +54,6 @@ export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
     { key: "age", label: "Age" },
     { key: "actions", label: "" },
   ];
-
-  if (selectedTaskId) {
-    const task = state.tasks.find((t) => t.id === selectedTaskId);
-    const maid = task ? maidById(state, task.housemaidId) : undefined;
-    if (task && maid) {
-      return (
-        <div className="page-stack">
-          <button type="button" className="text-button" onClick={() => setSelectedTaskId(null)}>
-            &larr; Back to list
-          </button>
-          <WorkspaceSplit
-            maid={maid}
-            task={task}
-            outcomeProps={{ onAction: handleAction }}
-            activePane={activePane}
-            onTogglePane={(pane) => setActivePane(pane)}
-            onOpenComplaints={openComplaints}
-          />
-        </div>
-      );
-    }
-  }
 
   const rows = tasks
     .filter((t) => typeFilter === "all" || t.type === typeFilter)
@@ -131,7 +81,10 @@ export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
           <button
             type="button"
             className="primary-button small"
-            onClick={() => setSelectedTaskId(task.id)}
+            onClick={() => {
+              dispatch({ type: "RECORD_TASK_OPEN", taskId: task.id, now: Date.now() });
+              onNavigate(`task/${task.id}`);
+            }}
           >
             Open Task
           </button>
@@ -186,7 +139,9 @@ export default function TeamWork({ state, dispatch, route }: TeamWorkProps) {
         </Panel>
       ) : (
         <Panel className="flush">
-          <DataTable columns={columns} rows={rows} />
+          <div className="teamwork-table">
+            <DataTable columns={columns} rows={rows} />
+          </div>
         </Panel>
       )}
     </div>

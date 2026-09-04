@@ -4,6 +4,7 @@ import { queueTaskType, isTerminal, PLATFORMS, NAV_TREE } from "../src/lib/stage
 describe("stages", () => {
   it("maps active stages to task types", () => {
     expect(queueTaskType("PendingRetraction")).toBe("retraction");
+    expect(queueTaskType("DocumentsCollection")).toBe("documents");
     expect(queueTaskType("PendingShooting")).toBe("shooting");
     expect(queueTaskType("PendingEditing")).toBe("editing");
     expect(queueTaskType("AvailablePendingPublishing")).toBe("publishing");
@@ -26,6 +27,17 @@ describe("stages", () => {
     expect(pub!.children?.length).toBe(5);
     expect(media!.children?.length).toBe(3);
     expect(ret!.children?.length).toBe(4);
+  });
+
+  it("document collection is its own stage with Pending Documents Collection", () => {
+    const ret = NAV_TREE.find((n) => n.key === "retraction");
+    expect(ret!.children!.map((c) => c.key)).not.toContain("DocumentsCollection");
+
+    const docs = NAV_TREE.find((n) => n.key === "documents");
+    expect(docs).toBeTruthy();
+    expect(docs!.label).toBe("Document Collection");
+    expect(docs!.children).toHaveLength(1);
+    expect(docs!.children![0]).toMatchObject({ key: "DocumentsCollection", label: "Pending Documents Collection", kind: "queue" });
   });
 
   it("publish platforms are ordered maidmatch, peekaboo, yaya", () => {

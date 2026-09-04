@@ -19,6 +19,7 @@ const ROLE_DESCRIPTIONS: Record<RoleId, string> = {
   retractor: "Routes maids out of reception and through retraction.",
   media: "Shoots and edits each maid's profile media.",
   sales: "Publishes maids and manages trials.",
+  receptionist: "Finds maids at reception and hands them to the retractor.",
 };
 
 const NAV_LABELS: Record<NavKey, string> = {
@@ -27,6 +28,7 @@ const NAV_LABELS: Record<NavKey, string> = {
   reception: "Reception",
   directory: "Directory",
   retraction: "Retraction",
+  documents: "Document Collection",
   media: "Media & Production",
   publishing: "Publishing",
   users: "Users & permissions",
@@ -39,13 +41,14 @@ const SCREEN_DESCRIPTIONS: Record<NavKey, string> = {
   reception: "Search and route incoming maids.",
   directory: "Browse and search every housemaid.",
   retraction: "Process and archive retractions.",
+  documents: "Collect the two required papers before Media.",
   media: "Shoot and edit profile media.",
   publishing: "Publish and manage trials.",
   users: "Manage team access and permissions.",
   config: "Change system parameters.",
 };
 
-const TASK_TYPES: TaskType[] = ["retraction", "shooting", "editing", "publishing", "available", "trial"];
+const TASK_TYPES: TaskType[] = ["retraction", "documents", "shooting", "editing", "publishing", "available", "trial"];
 
 function roleLabel(id: RoleId): string {
   return ROLES.find((r) => r.id === id)?.label ?? id;

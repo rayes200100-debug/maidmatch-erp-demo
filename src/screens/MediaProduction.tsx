@@ -1,21 +1,25 @@
-import { useEffect, useState } from "react";
-import { Image, Video } from "lucide-react";
+import { Image, Video, RotateCcw } from "lucide-react";
 import type { AppState, Action } from "../store";
-import { openTasks, maidById, archiveForOutcome } from "../store";
-import { DataTable, EmptyState, Panel } from "../components/primitives";
-import { WorkspaceSplit } from "../components/WorkspaceSplit";
-import type { WorkspacePane } from "../components/WorkspaceSplit";
+import { openTasks, maidById, archiveForOutcome, reshootCount } from "../store";
+import { activeTimeInQueue } from "../lib/hours";
+import { maidTypeLabel } from "../data";
+import { DataTable, EmptyState, Panel, StatusPill } from "../components/primitives";
 
 interface MediaProductionProps {
   state: AppState;
   dispatch: (a: Action) => void;
   route: string;
+  onNavigate: (key: string) => void;
 }
 
 const QUEUE_COLUMNS = [
   { key: "name", label: "Name" },
   { key: "nationality", label: "Nationality" },
   { key: "age", label: "Age" },
+  { key: "type", label: "Type" },
+  { key: "golden", label: "Golden" },
+  { key: "waitingSince", label: "Waiting since" },
+  { key: "time", label: "Time waiting" },
   { key: "actions", label: "" },
 ];
 
@@ -36,27 +40,14 @@ function initials(name: string): string {
     .toUpperCase();
 }
 
-export default function MediaProduction({ state, dispatch, route }: MediaProductionProps) {
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [activePane, setActivePane] = useState<WorkspacePane>("task");
+function formatDate(ts: number): string {
+  return new Date(ts).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
 
-  useEffect(() => {
-    setSelectedTaskId(null);
-  }, [route]);
-
-  const openComplaints = (erpLink: string) => {
-    window.open(erpLink, "_blank", "noopener,noreferrer");
-  };
-
-  const handleAction = (action: Action) => {
-    dispatch(action);
-    if (
-      action.type === "DONE_SHOOTING" ||
-      action.type === "EDITING_DONE" ||
-      action.type === "SEND_BACK_TO_SHOOTING"
-    ) {
-      setSelectedTaskId(null);
-    }
+export default function MediaProduction({ state, dispatch, route, onNavigate }: MediaProductionProps) {
+  const openTask = (taskId: string) => {
+    dispatch({ type: "RECORD_TASK_OPEN", taskId, now: Date.now() });
+    onNavigate(`task/${taskId}`);
   };
 
   if (route === "ProductionDone") {
@@ -70,7 +61,7 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
       return (
         <div className="table-row" key={outcome.id}>
           <span className="person-cell">
-            <span className="avatar avatar-sm">{initials(maid?.name ?? outcome.housemaidId)}</span>
+            <span className="avatar avatar-sm">{maid?.photoUrl ? <img src={maid.photoUrl} alt={maid?.name} /> : initials(maid?.name ?? outcome.housemaidId)}</span>
             <span style={{ minWidth: 0 }}>
               <strong>{maid?.name ?? outcome.housemaidId}</strong>
             </span>
@@ -105,7 +96,7 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
         <header className="page-header">
           <div>
             <span className="eyebrow">Media &amp; Production</span>
-            <h1>Production Done</h1>
+            <h1>Media &amp; Production Done</h1>
             <p>Completed productions with their final photo and video links.</p>
           </div>
         </header>
@@ -127,46 +118,21 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
   const type = isEditing ? "editing" : "shooting";
   const tasks = openTasks(state, type);
 
-  if (selectedTaskId) {
-    const task = state.tasks.find((t) => t.id === selectedTaskId);
-    const maid = task ? maidById(state, task.housemaidId) : undefined;
-
-    if (task && maid) {
-      const media = task.metadata?.stockPhotoUrl || task.metadata?.stockVideoUrl
-        ? {
-            stockPhotoUrl: task.metadata?.stockPhotoUrl,
-            stockVideoUrl: task.metadata?.stockVideoUrl,
-          }
-        : undefined;
-
-      return (
-        <div className="page-stack">
-          <button type="button" className="text-button" onClick={() => setSelectedTaskId(null)}>
-            &larr; Back to list
-          </button>
-
-          <WorkspaceSplit
-            maid={maid}
-            task={task}
-            outcomeProps={{ onAction: handleAction }}
-            activePane={activePane}
-            onTogglePane={(pane) => setActivePane(pane)}
-            onOpenComplaints={openComplaints}
-            media={media}
-          />
-        </div>
-      );
-    }
-  }
-
   const rows = tasks.map((task) => {
     const maid = maidById(state, task.housemaidId);
+    const timeWaiting = activeTimeInQueue(task.createdAt, Date.now(), state.config.workingHours, state.config.daysOff);
+    const reshoots = reshootCount(state, task.housemaidId);
     return (
       <div className="table-row" key={task.id}>
         <span className="person-cell">
-          <span className="avatar avatar-sm">{initials(maid?.name ?? task.housemaidId)}</span>
+          <span className="avatar avatar-sm">{maid?.photoUrl ? <img src={maid.photoUrl} alt={maid?.name} /> : initials(maid?.name ?? task.housemaidId)}</span>
           <span style={{ minWidth: 0 }}>
             <strong>{maid?.name ?? task.housemaidId}</strong>
+            {reshoots > 0 && (
+              <small className="mobile-subline">
+                <RotateCcw size={11} /> Reshoot · {reshoots}&times;
+              </small>
+            )}
           </span>
         </span>
         <span>
@@ -175,12 +141,18 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
         <span>
           <strong>{maid ? String(maid.age) : "—"}</strong>
         </span>
+        <span>
+          <strong>{maid ? maidTypeLabel(maid) : "—"}</strong>
+        </span>
+        <span>{maid?.isGoldenProfile ? <StatusPill tone="gold">Golden</StatusPill> : "—"}</span>
+        <span>
+          <strong>{formatDate(task.createdAt)}</strong>
+        </span>
+        <span>
+          <strong>{timeWaiting}</strong>
+        </span>
         <span style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button
-            type="button"
-            className="primary-button small"
-            onClick={() => setSelectedTaskId(task.id)}
-          >
+          <button type="button" className="primary-button small" onClick={() => openTask(task.id)}>
             Open Task
           </button>
         </span>
@@ -193,11 +165,11 @@ export default function MediaProduction({ state, dispatch, route }: MediaProduct
       <header className="page-header">
         <div>
           <span className="eyebrow">Media &amp; Production</span>
-          <h1>{isEditing ? "Pending Editing" : "Pending Shooting"}</h1>
+          <h1>{isEditing ? "Editors" : "Videographers"}</h1>
           <p>
             {isEditing
-              ? "Select any task to review stock media and deliver the final edit."
-              : "Select any task to run the shoot and capture stock media."}
+              ? "Review the raw photo and video in place, then deliver the final edit or send it back."
+              : "Shoot the raw photo and video — both are required before the editor can start."}
           </p>
         </div>
       </header>

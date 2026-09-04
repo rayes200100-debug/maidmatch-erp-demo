@@ -1,19 +1,20 @@
 export type Stage =
   | "Reception"
-  | "PendingRetraction" | "PendingShooting" | "PendingEditing"
+  | "PendingRetraction" | "DocumentsCollection" | "PendingShooting" | "PendingEditing"
   | "AvailablePendingPublishing" | "AvailablePublished" | "UnderTrial"
   | "RetractedToCC" | "MovedToOffboard" | "Hired" | "Cancelled";
 
-export type TaskType = "retraction" | "shooting" | "editing" | "publishing" | "available" | "trial";
-export type OutcomeType = "RetractedToCC" | "MovedToOffboard" | "RetractedToMaidMatch" | "ProductionDone" | "Hired" | "Cancelled";
+export type TaskType = "retraction" | "documents" | "shooting" | "editing" | "publishing" | "available" | "trial";
+export type OutcomeType = "RetractedToCC" | "MovedToOffboard" | "RetractedToMaidMatch" | "ProductionDone" | "SentBackToShooting" | "ProfileEdited" | "Hired" | "Cancelled";
 export type Platform = "maidmatch" | "peekaboo" | "yaya";
 
 export const PLATFORMS: Platform[] = ["maidmatch", "peekaboo", "yaya"];
 
 export const TASK_TYPE_LABEL: Record<TaskType, string> = {
   retraction: "Pending Retraction",
-  shooting: "Pending Shooting",
-  editing: "Pending Editing",
+  documents: "Pending Documents Collection",
+  shooting: "Videographers",
+  editing: "Editors",
   publishing: "Available Pending Publishing",
   available: "Available & Published",
   trial: "Under Trial",
@@ -24,6 +25,8 @@ export const OUTCOME_LABEL: Record<OutcomeType, string> = {
   MovedToOffboard: "Moved to Offboard",
   RetractedToMaidMatch: "Retracted to MaidMatch",
   ProductionDone: "Production Done",
+  SentBackToShooting: "Sent back to shooting",
+  ProfileEdited: "Profile edited",
   Hired: "Hired",
   Cancelled: "Cancelled",
 };
@@ -36,6 +39,7 @@ export function isTerminal(stage: Stage): boolean {
 
 export const STAGE_TO_TASK: Partial<Record<Stage, TaskType>> = {
   PendingRetraction: "retraction",
+  DocumentsCollection: "documents",
   PendingShooting: "shooting",
   PendingEditing: "editing",
   AvailablePendingPublishing: "publishing",
@@ -45,6 +49,14 @@ export const STAGE_TO_TASK: Partial<Record<Stage, TaskType>> = {
 
 export function queueTaskType(stage: Stage): TaskType | null {
   return STAGE_TO_TASK[stage] ?? null;
+}
+
+/** The screen/queue name a stage maps to (used for the "current status" readout). */
+export function stageLabel(stage: Stage): string {
+  const tt = STAGE_TO_TASK[stage];
+  if (tt) return TASK_TYPE_LABEL[tt];
+  if (stage === "Reception") return "Reception";
+  return OUTCOME_LABEL[stage as OutcomeType];
 }
 
 export interface NavNode {
@@ -65,10 +77,13 @@ export const NAV_TREE: NavNode[] = [
     { key: "RetractedToCC", label: "Retracted to CC", kind: "archive" },
     { key: "RetractedToMaidMatch", label: "Retracted to MaidMatch", kind: "archive" },
   ]},
+  { key: "documents", label: "Document Collection", kind: "group", children: [
+    { key: "DocumentsCollection", label: "Pending Documents Collection", kind: "queue" },
+  ]},
   { key: "media", label: "Media & Production", kind: "group", children: [
-    { key: "PendingShooting", label: "Pending Shooting", kind: "queue" },
-    { key: "PendingEditing", label: "Pending Editing", kind: "queue" },
-    { key: "ProductionDone", label: "Production Done", kind: "archive" },
+    { key: "PendingShooting", label: "Videographers", kind: "queue" },
+    { key: "PendingEditing", label: "Editors", kind: "queue" },
+    { key: "ProductionDone", label: "Media & Production Done", kind: "archive" },
   ]},
   { key: "publishing", label: "Publishing", kind: "group", children: [
     { key: "AvailablePendingPublishing", label: "Available Pending Publishing", kind: "queue" },

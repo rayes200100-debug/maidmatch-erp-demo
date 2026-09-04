@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
 import type { AppState, Action } from "../store";
 import { openTasks, maidById, archiveForOutcome } from "../store";
 import { PLATFORMS, OUTCOME_LABEL } from "../lib/stages";
 import type { Platform } from "../lib/stages";
-import { DataTable, EmptyState, Panel } from "../components/primitives";
-import { WorkspaceSplit } from "../components/WorkspaceSplit";
-import type { WorkspacePane } from "../components/WorkspaceSplit";
+import { Check, X } from "lucide-react";
+import { DataTable, EmptyState, Panel, StatusPill } from "../components/primitives";
 
 interface PublishingProps {
   state: AppState;
   dispatch: (a: Action) => void;
   route: string;
+  onNavigate: (key: string) => void;
 }
 
 const PLATFORM_LABEL: Record<Platform, string> = {
@@ -23,10 +22,11 @@ const PUBLISHING_COLUMNS = [
   { key: "name", label: "Name" },
   { key: "nationality", label: "Nationality" },
   { key: "age", label: "Age" },
-  { key: "progress", label: "Progress" },
   { key: "maidmatch", label: "MaidMatch" },
   { key: "peekaboo", label: "Peekaboo" },
   { key: "yaya", label: "Yaya" },
+  { key: "status", label: "Status" },
+  { key: "actions", label: "" },
 ];
 
 const QUEUE_COLUMNS = [
@@ -70,40 +70,17 @@ function initials(name: string): string {
 }
 
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return new Date(ts).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
-export default function Publishing({ state, dispatch, route }: PublishingProps) {
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [activePane, setActivePane] = useState<WorkspacePane>("task");
+function fmtTime(ts?: number): string {
+  return ts ? new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—";
+}
 
-  useEffect(() => {
-    setSelectedTaskId(null);
-  }, [route]);
-
-  const openComplaints = (erpLink: string) => {
-    window.open(erpLink, "_blank", "noopener,noreferrer");
-  };
-
-  const handleAction = (action: Action) => {
-    dispatch(action);
-    if (
-      action.type === "UNDER_TRIAL" ||
-      action.type === "HIRED" ||
-      action.type === "SEND_BACK_TO_PUBLISHED" ||
-      action.type === "SEND_BACK_TO_PENDING_PUBLISHING" ||
-      action.type === "CANCEL"
-    ) {
-      setSelectedTaskId(null);
-    }
-  };
-
-  const togglePlatform = (housemaidId: string, platform: Platform, green: boolean) => {
-    dispatch({ type: green ? "UNFLAG_PLATFORM" : "FLAG_PLATFORM", housemaidId, platform, now: Date.now() });
+export default function Publishing({ state, dispatch, route, onNavigate }: PublishingProps) {
+  const openTask = (taskId: string) => {
+    dispatch({ type: "RECORD_TASK_OPEN", taskId, now: Date.now() });
+    onNavigate(`task/${taskId}`);
   };
 
   if (route === "Hired" || route === "Cancelled") {
@@ -116,7 +93,7 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
       return (
         <div className="table-row" key={outcome.id}>
           <span className="person-cell">
-            <span className="avatar avatar-sm">{initials(maid?.name ?? outcome.housemaidId)}</span>
+            <span className="avatar avatar-sm">{maid?.photoUrl ? <img src={maid.photoUrl} alt={maid?.name} /> : initials(maid?.name ?? outcome.housemaidId)}</span>
             <span style={{ minWidth: 0 }}>
               <strong>{maid?.name ?? outcome.housemaidId}</strong>
             </span>
@@ -168,14 +145,19 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
 
   if (route === "AvailablePendingPublishing") {
     const tasks = openTasks(state, "publishing");
+    const lastFailed = tasks.reduce((max, t) => Math.max(max, t.metadata?.publish?.lastFailedAt ?? 0), 0);
 
     const rows = tasks.map((task) => {
       const maid = maidById(state, task.housemaidId);
-      const progress = PLATFORMS.filter((p) => task.metadata?.publishState?.[p]).length;
+      const pub = task.metadata?.publish;
+      const held = pub?.heldReason;
+      const anyFailed = PLATFORMS.some((p) => pub?.platforms[p]?.status === "failed");
+      const rowClass = held || anyFailed ? "row-issue" : "row-waiting";
+
       return (
-        <div className="table-row" key={task.id}>
+        <div className={`table-row ${rowClass}`} key={task.id}>
           <span className="person-cell">
-            <span className="avatar avatar-sm">{initials(maid?.name ?? task.housemaidId)}</span>
+            <span className="avatar avatar-sm">{maid?.photoUrl ? <img src={maid.photoUrl} alt={maid?.name} /> : initials(maid?.name ?? task.housemaidId)}</span>
             <span style={{ minWidth: 0 }}>
               <strong>{maid?.name ?? task.housemaidId}</strong>
             </span>
@@ -186,31 +168,34 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
           <span>
             <strong>{maid ? `${maid.age}y` : "—"}</strong>
           </span>
-          <span>
-            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <strong style={{ fontSize: 12 }}>{progress}/3</strong>
-              <span style={{ height: 5, width: 36, borderRadius: 99, background: "var(--line)", overflow: "hidden" }}>
-                <i style={{ display: "block", height: "100%", width: `${(progress / 3) * 100}%`, background: "var(--success)", borderRadius: "inherit" }} />
-              </span>
-            </span>
-          </span>
           {PLATFORMS.map((platform) => {
-            const green = task.metadata?.publishState?.[platform] ?? false;
+            const st = pub?.platforms[platform];
+            const status = st?.status ?? "pending";
             return (
               <span key={platform} style={{ display: "flex", justifyContent: "center" }}>
-                <button
-                  type="button"
-                  className="platform-cell"
-                  onClick={() => togglePlatform(task.housemaidId, platform, green)}
-                  aria-label={`${green ? "Unpublish from" : "Publish to"} ${PLATFORM_LABEL[platform]}`}
-                  aria-pressed={green}
-                  title={`${PLATFORM_LABEL[platform]} — ${green ? "published" : "not published"}`}
+                <span
+                  className={`platform-cell ${status}`}
+                  title={`${PLATFORM_LABEL[platform]} — ${status}${st?.failureReason ? `: ${st.failureReason}` : ""}`}
                 >
-                  <i className={green ? "green" : ""}>&#10003;</i>
-                </button>
+                  {status === "posted" ? <Check size={14} strokeWidth={3} aria-label={`${PLATFORM_LABEL[platform]} posted`} /> : status === "failed" ? <X size={14} strokeWidth={3} aria-label={`${PLATFORM_LABEL[platform]} failed`} /> : <i className="pending-dot" />}
+                </span>
               </span>
             );
           })}
+          <span>
+            {held ? (
+              <StatusPill tone="danger">Held — {held}</StatusPill>
+            ) : anyFailed ? (
+              <StatusPill tone="danger">Failed</StatusPill>
+            ) : (
+              <StatusPill tone="warning">Posting…</StatusPill>
+            )}
+          </span>
+          <span style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button type="button" className="primary-button small" onClick={() => openTask(task.id)}>
+              Open Task
+            </button>
+          </span>
         </div>
       );
     });
@@ -222,8 +207,16 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
             <span className="eyebrow">Publishing</span>
             <h1>Available Pending Publishing</h1>
             <p>
-              Click a platform cell to publish to that channel. Once all three are green the maid
-              automatically moves to Available &amp; Published.
+              The system posts each profile to all three platforms. A failure on one never blocks the others,
+              and each is retried. She moves to Available &amp; Published once all three are green.
+            </p>
+            <p style={{ fontSize: 12, marginTop: 8, color: "var(--muted)" }}>
+              {lastFailed
+                ? `Last time the system tried and failed: ${fmtTime(lastFailed)}`
+                : "No failed posts on record."}{" "}
+              <button type="button" className="text-button" onClick={() => dispatch({ type: "RUN_PUBLISH_JOB", now: Date.now() })}>
+                Run publish job now
+              </button>
             </p>
           </div>
         </header>
@@ -248,34 +241,12 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
   const taskType = isTrial ? "trial" : "available";
   const tasks = openTasks(state, taskType);
 
-  if (selectedTaskId) {
-    const task = state.tasks.find((t) => t.id === selectedTaskId);
-    const maid = task ? maidById(state, task.housemaidId) : undefined;
-    if (task && maid) {
-      return (
-        <div className="page-stack">
-          <button type="button" className="text-button" onClick={() => setSelectedTaskId(null)}>
-            &larr; Back to list
-          </button>
-          <WorkspaceSplit
-            maid={maid}
-            task={task}
-            outcomeProps={{ onAction: handleAction }}
-            activePane={activePane}
-            onTogglePane={(pane) => setActivePane(pane)}
-            onOpenComplaints={openComplaints}
-          />
-        </div>
-      );
-    }
-  }
-
   const rows = tasks.map((task) => {
     const maid = maidById(state, task.housemaidId);
     return (
       <div className="table-row" key={task.id}>
         <span className="person-cell">
-          <span className="avatar avatar-sm">{initials(maid?.name ?? task.housemaidId)}</span>
+          <span className="avatar avatar-sm">{maid?.photoUrl ? <img src={maid.photoUrl} alt={maid?.name} /> : initials(maid?.name ?? task.housemaidId)}</span>
           <span style={{ minWidth: 0 }}>
             <strong>{maid?.name ?? task.housemaidId}</strong>
           </span>
@@ -292,11 +263,7 @@ export default function Publishing({ state, dispatch, route }: PublishingProps) 
           </span>
         )}
         <span style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button
-            type="button"
-            className="primary-button small"
-            onClick={() => setSelectedTaskId(task.id)}
-          >
+          <button type="button" className="primary-button small" onClick={() => openTask(task.id)}>
             Open Task
           </button>
         </span>

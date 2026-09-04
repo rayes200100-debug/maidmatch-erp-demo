@@ -10,7 +10,7 @@ import {
   XCircle,
 } from "lucide-react";
 import type { AppState, Action } from "../store";
-import { avgTimeByStage, archiveForOutcome, openTasks } from "../store";
+import { avgTimeByStage, archiveForOutcome, openTasks, retractionAdherenceRate } from "../store";
 import type { Stage, TaskType } from "../lib/stages";
 import { STAGE_TO_TASK, TASK_TYPE_LABEL } from "../lib/stages";
 import { ROLES } from "../lib/roles";
@@ -49,6 +49,7 @@ export default function Dashboard({ state, onNavigate }: DashboardProps) {
   const avgByStage = avgTimeByStage(state);
   const hasClosedTasks = state.tasks.some((t) => t.closedAt != null);
   const openTaskCount = openTasks(state).length;
+  const adherence = retractionAdherenceRate(state);
 
   const roleLabel = ROLES.find((r) => r.id === state.currentRole)?.label ?? state.currentRole;
   const currentUser = state.users.find((u) => u.roles.includes(state.currentRole));
@@ -154,6 +155,26 @@ export default function Dashboard({ state, onNavigate }: DashboardProps) {
             <div style={{ height: 8, display: "flex", overflow: "hidden", borderRadius: 99, background: "var(--line)" }}>
               <i style={{ width: `${hired ? Math.round((hired / Math.max(1, reachedPublishing)) * 100) : 0}%`, background: "var(--success)" }} />
               <i style={{ width: `${cancelled ? Math.round((cancelled / Math.max(1, reachedPublishing)) * 100) : 0}%`, background: "var(--danger)" }} />
+            </div>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel>
+        <div className="panel-header">
+          <div>
+            <h2>Retraction Priority Adherence Rate</h2>
+            <p>How often the retractor worked the top of the queue first.</p>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 32, marginTop: 16, alignItems: "center" }}>
+          <div>
+            <strong style={{ display: "block", fontSize: 24 }}>{adherence.rate}%</strong>
+            <span style={{ color: "var(--muted)", fontSize: 12 }}>{adherence.followed} of {adherence.total} opened top-first</span>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ height: 8, display: "flex", overflow: "hidden", borderRadius: 99, background: "var(--line)" }}>
+              <i style={{ width: `${adherence.rate}%`, background: "var(--success)" }} />
             </div>
           </div>
         </div>

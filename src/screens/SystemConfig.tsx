@@ -48,6 +48,9 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
   const wh = config.workingHours;
   const [toast, setToast] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [newReason, setNewReason] = useState("");
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
   const prevConfig = useRef(config);
 
   useEffect(() => {
@@ -142,13 +145,191 @@ export default function SystemConfig({ state, dispatch }: SystemConfigProps) {
               ))}
             </select>
           </label>
+          <div style={{ marginTop: 16 }}>
+            <span style={sectionLabel}>Priority rules (layered on the base order)</span>
+            <label className="check-row" style={{ marginBottom: 8 }}>
+              <input
+                type="checkbox"
+                checked={config.liveInPriority}
+                onChange={() =>
+                  dispatch({ type: "SET_CONFIG", patch: { liveInPriority: !config.liveInPriority } })
+                }
+              />
+              <span>&#10003;</span>
+              Live-in priority — CC live-in maids jump ahead of the queue
+            </label>
+            <small style={{ color: "var(--muted)", fontSize: 12 }}>
+              The retractor sees only the resulting order, never the algorithm. Other rules (LIFO, Filipina first,
+              golden profiles first) live here and can be layered later.
+            </small>
+          </div>
+      </Panel>
+
+      <Panel>
+          <div className="panel-header">
+            <div>
+              <h2>Termination reasons</h2>
+              <p>The reasons a retractor can choose at the retraction desk. Rename or retire them without a release.</p>
+            </div>
+          </div>
+          <div style={{ marginTop: 16, display: "grid", gap: 8 }}>
+            {config.terminationReasons.map((r) => (
+              <div key={r} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "8px 12px", border: "1px solid var(--line)", borderRadius: 9 }}>
+                {renaming === r ? (
+                  <input
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    style={{ flex: 1, minHeight: 36, padding: "0 10px", border: "1px solid var(--line-strong)", borderRadius: 8, fontSize: 13, color: "var(--ink)" }}
+                  />
+                ) : (
+                  <span style={{ fontSize: 13, color: "var(--ink-soft)" }}>{r}</span>
+                )}
+                <span style={{ display: "flex", gap: 8 }}>
+                  {renaming === r ? (
+                    <>
+                      <button
+                        type="button"
+                        className="text-button"
+                        onClick={() => {
+                          const v = renameValue.trim();
+                          if (v && v !== r && !config.terminationReasons.includes(v)) {
+                            dispatch({ type: "SET_CONFIG", patch: { terminationReasons: config.terminationReasons.map((x) => (x === r ? v : x)) } });
+                          }
+                          setRenaming(null);
+                          setRenameValue("");
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button type="button" className="text-button" onClick={() => { setRenaming(null); setRenameValue(""); }}>
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className="text-button"
+                        onClick={() => { setRenaming(r); setRenameValue(r); }}
+                      >
+                        Rename
+                      </button>
+                      <button
+                        type="button"
+                        className="text-button"
+                        onClick={() => dispatch({
+                          type: "SET_CONFIG",
+                          patch: {
+                            terminationReasons: config.terminationReasons.filter((x) => x !== r),
+                            retiredTerminationReasons: [...config.retiredTerminationReasons, r],
+                          },
+                        })}
+                      >
+                        Retire
+                      </button>
+                    </>
+                  )}
+                </span>
+              </div>
+            ))}
+            {config.retiredTerminationReasons.length > 0 && (
+              <div style={{ marginTop: 10 }}>
+                <span style={sectionLabel}>Retired</span>
+                {config.retiredTerminationReasons.map((r) => (
+                  <div key={r} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "6px 12px", border: "1px dashed var(--line)", borderRadius: 9 }}>
+                    <span style={{ fontSize: 13, color: "var(--muted)", textDecoration: "line-through" }}>{r}</span>
+                    <button
+                      type="button"
+                      className="text-button"
+                      onClick={() => dispatch({
+                        type: "SET_CONFIG",
+                        patch: {
+                          terminationReasons: [...config.terminationReasons, r],
+                          retiredTerminationReasons: config.retiredTerminationReasons.filter((x) => x !== r),
+                        },
+                      })}
+                    >
+                      Restore
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+              <input
+                value={newReason}
+                onChange={(e) => setNewReason(e.target.value)}
+                placeholder="Add a reason…"
+                style={{ flex: 1, minHeight: 40, padding: "0 11px", border: "1px solid var(--line-strong)", borderRadius: 9, fontSize: 13, color: "var(--ink)" }}
+              />
+              <button
+                type="button"
+                className="secondary-button small"
+                onClick={() => {
+                  const r = newReason.trim();
+                  if (!r || config.terminationReasons.includes(r) || config.retiredTerminationReasons.includes(r)) return;
+                  dispatch({ type: "SET_CONFIG", patch: { terminationReasons: [...config.terminationReasons, r] } });
+                  setNewReason("");
+                }}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+      </Panel>
+
+      <Panel>
+          <div className="panel-header">
+            <div>
+              <h2>ERP integration settings</h2>
+              <p>The maids.cc complaint type and handling team the system pre-fills per outcome.</p>
+            </div>
+          </div>
+          <div className="task-dynamic-fields" style={{ marginTop: 16 }}>
+            <label className="task-input-field">
+              <span>Offboarding — complaint type</span>
+              <input
+                value={config.erpIntegrations.offboarding.complaintType}
+                onChange={(e) =>
+                  dispatch({ type: "SET_CONFIG", patch: { erpIntegrations: { ...config.erpIntegrations, offboarding: { ...config.erpIntegrations.offboarding, complaintType: e.target.value } } } })
+                }
+              />
+            </label>
+            <label className="task-input-field">
+              <span>Offboarding — handling team</span>
+              <input
+                value={config.erpIntegrations.offboarding.handlingTeam}
+                onChange={(e) =>
+                  dispatch({ type: "SET_CONFIG", patch: { erpIntegrations: { ...config.erpIntegrations, offboarding: { ...config.erpIntegrations.offboarding, handlingTeam: e.target.value } } } })
+                }
+              />
+            </label>
+            <label className="task-input-field">
+              <span>Payroll — complaint type</span>
+              <input
+                value={config.erpIntegrations.payroll.complaintType}
+                onChange={(e) =>
+                  dispatch({ type: "SET_CONFIG", patch: { erpIntegrations: { ...config.erpIntegrations, payroll: { ...config.erpIntegrations.payroll, complaintType: e.target.value } } } })
+                }
+              />
+            </label>
+            <label className="task-input-field">
+              <span>Payroll — handling team</span>
+              <input
+                value={config.erpIntegrations.payroll.handlingTeam}
+                onChange={(e) =>
+                  dispatch({ type: "SET_CONFIG", patch: { erpIntegrations: { ...config.erpIntegrations, payroll: { ...config.erpIntegrations.payroll, handlingTeam: e.target.value } } } })
+                }
+              />
+            </label>
+          </div>
       </Panel>
 
       <Panel>
           <div className="panel-header">
             <div>
               <h2>Golden Profile Definition</h2>
-              <p>Criteria that mark a maid as a golden profile.</p>
+              <p>Criteria that mark a maid as a golden profile — current working definition: Filipina, under 45.</p>
             </div>
           </div>
 

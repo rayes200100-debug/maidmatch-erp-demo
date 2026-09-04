@@ -115,14 +115,16 @@ export function DataTable({
 }) {
   return (
     <div className="data-table" role="table">
-      <div className="table-row table-head" role="row">
-        {columns.map((c) => (
-          <span key={c.key} role="columnheader">
-            {c.label}
-          </span>
-        ))}
+      <div className="table-grid">
+        <div className="table-row table-head" role="row">
+          {columns.map((c) => (
+            <span key={c.key} role="columnheader">
+              {c.label}
+            </span>
+          ))}
+        </div>
+        {rows}
       </div>
-      {rows}
     </div>
   );
 }
